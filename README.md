@@ -7,7 +7,6 @@
 - `index.html` — 학생용 화면
 - `schedule.gs` — 시트에서 오늘 내용을 꺼내 주는 Google Apps Script
 - `Jalnan2.ttf`, `images/` — 제목 글꼴과 여우 그림
-- `_headers` — Cloudflare Pages 캐시 설정
 
 ## 설정 (최초 1회)
 
@@ -24,10 +23,11 @@
 - `index.html` 의 `DEFAULT_API_URL = ''` 에 위 URL을 넣고 커밋 (모든 기기에 적용), 또는
 - 화면에 처음 뜨는 입력칸에 붙여넣기 (그 기기에만 저장됨)
 
-### 3. Cloudflare Pages 배포
+### 3. GitHub Pages 배포
 
-Cloudflare 대시보드 → Workers & Pages → Pages → GitHub 연결 → 이 저장소 선택.
-빌드 명령은 비워 두고, 출력 폴더는 `/` 로 둡니다. `main` 에 푸시할 때마다 자동 배포됩니다.
+저장소 `Settings → Pages` 에서 Source 를 **Deploy from a branch**, Branch 를 `main` / `/ (root)` 로 저장합니다.
+1~2분 뒤 https://sean1290.github.io/foxlc-schedule/ 로 접속할 수 있고, `main` 에 푸시할 때마다 자동 반영됩니다.
+(무료 요금제에서는 저장소가 공개(Public)여야 GitHub Pages 를 쓸 수 있습니다.)
 
 ## 화면 기능
 
