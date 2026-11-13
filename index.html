@@ -90,6 +90,10 @@ button:focus-visible{outline:3px solid var(--t);outline-offset:2px}
 .setup{max-width:40rem;margin:1rem auto 0;display:flex;gap:.5rem;flex-wrap:wrap}
 .setup input{flex:1 1 16rem;font:inherit;padding:.7rem 1rem;border:2px solid var(--b);border-radius:1rem}
 .setup button{border:0;background:var(--p);color:#fff;font-weight:900;border-radius:1rem;padding:.7rem 1.2rem;font-size:1rem}
+.teacher{max-width:40rem;margin:1.5rem auto 0;text-align:left;font-size:.95rem;color:var(--m)}
+.teacher summary{cursor:pointer;font-weight:700;padding:.5rem 0}
+.teacher p{font-size:.95rem;margin:.4rem 0;overflow-wrap:anywhere}
+.teacher button{margin-top:.5rem;border:2px solid var(--b);background:var(--card);border-radius:1rem;padding:.5rem 1rem;font-weight:700;min-height:2.6rem}
 .foot{margin-top:1.2rem;text-align:center;color:var(--m);font-size:.9rem}
 .foot .warn{color:var(--live);font-weight:700}
 @media (max-width:40rem){.date{font-size:1.9rem}.fox{width:3.5rem;height:3.5rem}.mine .when{min-width:0}}
@@ -383,8 +387,15 @@ function render(){
   }
   if (!state.data) {
     main.innerHTML = state.error
-      ? `<div class="state"><img src="images/sitting-fox.png" alt=""><h2>시간표를 불러오지 못했어요</h2><p>선생님께 알려 주세요. 잠시 뒤 다시 시도할게요.</p></div>`
+      ? `<div class="state"><img src="images/sitting-fox.png" alt=""><h2>시간표를 불러오지 못했어요</h2><p>선생님께 알려 주세요. 잠시 뒤 다시 시도할게요.</p>
+          <details class="teacher"><summary>선생님용 정보</summary>
+            <p><b>원인:</b> ${esc(state.error)}</p>
+            <p><b>연결된 주소:</b> ${esc(api)}</p>
+            <button type="button" id="resetApi">주소 다시 입력</button>
+          </details></div>`
       : `<div class="state"><img src="images/sitting-fox.png" alt=""><h2>시간표를 가져오고 있어요…</h2></div>`;
+    const reset = $('resetApi');
+    if (reset) reset.onclick = () => { try { localStorage.removeItem('schedule_api'); } catch (e) {} state.error = ''; render(); };
     return;
   }
   if (!state.labs.length) {
@@ -488,13 +499,26 @@ async function load(){
     const timer = setTimeout(() => ctrl.abort(), 25000);
     const res = await fetch(url, { signal: ctrl.signal, cache: 'no-store' });
     clearTimeout(timer);
-    const data = await res.json();
-    if (data.status !== 'ok') throw new Error(data.message || 'error');
+    const text = await res.text();
+    let data;
+    try { data = JSON.parse(text); }
+    catch (e) {
+      throw new Error(/accounts\.google\.com|로그인|Sign in/i.test(text)
+        ? '웹 앱이 로그인을 요구해요. 배포 설정의 액세스 권한을 "모든 사용자"로 바꿔 주세요.'
+        : '웹 앱 주소가 시간표 데이터를 돌려주지 않아요. …/exec 로 끝나는 웹 앱 주소인지, schedule.gs 가 배포됐는지 확인해 주세요.');
+    }
+    if (data.status !== 'ok') throw new Error(data.message || '시트를 읽는 중 오류가 났어요.');
+    if (!('rows' in data)) throw new Error('다른 Apps Script 의 주소 같아요. schedule.gs 를 배포한 주소인지 확인해 주세요.');
     accept(data);
     state.stale = false; state.error = '';
     store.set('schedule_last', JSON.stringify(data));
   } catch (err) {
     state.error = String(err && err.message || err);
+    if (/Failed to fetch|NetworkError|Load failed/i.test(state.error)) {
+      state.error = '주소에 연결할 수 없어요. 웹 앱 주소(…/exec)가 맞는지, 액세스 권한이 "모든 사용자"인지, 인터넷이 되는지 확인해 주세요.';
+    } else if (err && err.name === 'AbortError') {
+      state.error = '응답이 너무 오래 걸려요. 잠시 뒤 다시 시도할게요.';
+    }
     if (!state.data) {
       // 연결이 안 되면, 같은 날 마지막으로 받은 내용을 보여 줍니다
       try {
