@@ -7,98 +7,110 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦊</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-@font-face{font-family:'Jalnan2';src:url('Jalnan2.ttf') format('truetype');font-display:swap}
 :root{
-  --bg:#FFF8F0;--p:#FF6B35;--pl:#FFEDE5;--t:#2D1A0E;--m:#75604F;--b:#EDE4DC;--card:#fff;
-  --live:#D92D20;--r:1.5rem;
+  --bg:#F7F4EF;--card:#fff;--ink:#1E2330;--sub:#5F6675;--line:#ECE8E1;--p:#F2622E;--pl:#FFF1EA;
+  --live:#E5484D;--r:1.75rem;
+  --shadow:0 1px 2px rgba(30,35,48,.04),0 .6rem 1.8rem rgba(30,35,48,.07);
+  --font:'Pretendard Variable',Pretendard,'Noto Sans KR',system-ui,-apple-system,sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{font-size:100%;-webkit-text-size-adjust:100%}
-body{font-family:'Noto Sans KR',system-ui,sans-serif;background:var(--bg);color:var(--t);min-height:100vh;line-height:1.5;word-break:keep-all;overflow-wrap:anywhere}
-button{font-family:inherit;color:inherit;cursor:pointer}
-button:focus-visible{outline:3px solid var(--t);outline-offset:2px}
-.wrap{max-width:110rem;margin:0 auto;padding:1rem 1rem 3rem}
+body{font-family:var(--font);background:var(--bg);color:var(--ink);min-height:100vh;line-height:1.5;letter-spacing:-.01em;word-break:keep-all;overflow-wrap:anywhere;-webkit-font-smoothing:antialiased}
+button{font-family:inherit;color:inherit;cursor:pointer;letter-spacing:inherit}
+button:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+.wrap{max-width:84rem;margin:0 auto;padding:1.75rem 1.5rem 4rem}
 
 /* ── 머리 ── */
-.top{display:flex;align-items:center;gap:.9rem;flex-wrap:wrap;margin-bottom:1rem}
-.fox{width:4.5rem;height:4.5rem;object-fit:contain;flex:none}
-.top-text{flex:1 1 14rem;min-width:0}
-.eyebrow{font-size:1rem;font-weight:700;color:var(--p)}
-.date{font-family:'Jalnan2','Noto Sans KR',sans-serif;font-size:2.4rem;line-height:1.15;letter-spacing:-.02em}
-.date small{font-size:1.3rem;color:var(--m);margin-left:.4rem;font-family:'Noto Sans KR',sans-serif;font-weight:700}
-.tools{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
-.clock{font-family:'Jalnan2','Noto Sans KR',sans-serif;font-size:1.7rem;font-variant-numeric:tabular-nums;background:var(--card);border:2px solid var(--b);border-radius:99px;padding:.3rem 1rem}
-.fs{display:flex;align-items:center;background:var(--card);border:2px solid var(--b);border-radius:99px;overflow:hidden}
-.fs button{border:0;background:none;min-width:2.9rem;min-height:2.9rem;font-weight:900;font-size:1.05rem;padding:0 .7rem}
-.fs button:hover{background:var(--pl)}
-.fs button:disabled{opacity:.35;cursor:default;background:none}
-.fs button + button{border-left:2px solid var(--b)}
+.top{display:flex;align-items:center;gap:1.1rem;flex-wrap:wrap;margin-bottom:1.75rem}
+.fox{height:5.5rem;width:auto;flex:none}
+.top-text{flex:1 1 16rem;min-width:0}
+.eyebrow{display:inline-block;font-size:1rem;font-weight:700;color:var(--p);background:var(--pl);border-radius:99px;padding:.15rem .8rem;margin-bottom:.35rem}
+.date{font-size:2.9rem;font-weight:800;line-height:1.15;letter-spacing:-.035em}
+.date small{font-size:1.15rem;color:var(--sub);margin-left:.7rem;font-weight:600;letter-spacing:-.01em}
+.tools{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap}
+.clock{font-size:1.6rem;font-weight:700;font-variant-numeric:tabular-nums;background:var(--card);box-shadow:var(--shadow);border-radius:99px;padding:.45rem 1.2rem}
+.fs{display:flex;align-items:center;background:var(--card);box-shadow:var(--shadow);border-radius:99px;overflow:hidden}
+.fs button{border:0;background:none;min-width:3.2rem;min-height:3.2rem;font-weight:700;font-size:1rem;padding:0 .8rem;color:var(--sub)}
+.fs button:hover{background:var(--pl);color:var(--p)}
+.fs button:disabled{opacity:.3;cursor:default;background:none;color:var(--sub)}
+.fs button + button{border-left:1px solid var(--line)}
 .fs .big{font-size:1.4rem}
 
 /* ── 이름 찾기 ── */
-.names{background:var(--card);border:2px solid var(--b);border-radius:var(--r);padding:.9rem 1rem;margin-bottom:1rem}
-.names h2{font-size:1.1rem;font-weight:900;margin-bottom:.6rem}
-.name-list{display:flex;flex-wrap:wrap;gap:.45rem}
-.nm{border:2px solid var(--b);background:var(--bg);border-radius:99px;padding:.35rem .9rem;font-size:1.1rem;font-weight:700;min-height:2.6rem}
-.nm:hover{border-color:var(--p)}
-.nm[aria-pressed="true"]{background:var(--p);border-color:var(--p);color:#fff}
+.names{background:var(--card);box-shadow:var(--shadow);border-radius:var(--r);padding:1.4rem 1.6rem;margin-bottom:1.5rem}
+.names h2{font-size:1.2rem;font-weight:700;margin-bottom:.9rem;color:var(--sub)}
+.name-list{display:flex;flex-wrap:wrap;gap:.55rem}
+.nm{border:0;background:var(--bg);border-radius:99px;padding:.5rem 1.15rem;font-size:1.25rem;font-weight:600;min-height:3rem;transition:background .15s,color .15s,transform .15s}
+.nm:hover{background:var(--pl);color:var(--p)}
+.nm:active{transform:scale(.96)}
+.nm[aria-pressed="true"]{background:var(--p);color:#fff}
 
-.mine{background:var(--t);color:#fff;border-radius:var(--r);padding:1.1rem 1.2rem;margin-bottom:1rem}
-.mine-head{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:.7rem}
-.mine h2{font-family:'Jalnan2','Noto Sans KR',sans-serif;font-size:1.6rem;font-weight:400}
-.mine .close{border:2px solid rgba(255,255,255,.5);background:none;color:#fff;border-radius:99px;padding:.3rem 1rem;font-size:1rem;font-weight:700;min-height:2.6rem}
-.mine ol{list-style:none;display:grid;gap:.5rem}
-.mine li{display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;background:rgba(255,255,255,.1);border-radius:1rem;padding:.6rem .9rem}
-.mine .when{font-family:'Jalnan2','Noto Sans KR',sans-serif;font-size:1.5rem;font-variant-numeric:tabular-nums;min-width:10.5rem}
-.mine .lab-tag{background:var(--c);color:#fff;border-radius:99px;padding:.15rem .8rem;font-weight:900;font-size:1.05rem}
-.mine .what{font-size:1.1rem;font-weight:500;flex:1 1 10rem}
+.mine{background:var(--ink);color:#fff;border-radius:var(--r);padding:1.6rem 1.8rem;margin-bottom:1.5rem;box-shadow:var(--shadow)}
+.mine-head{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:1rem}
+.mine h2{font-size:1.8rem;font-weight:800;letter-spacing:-.03em}
+.mine .close{border:0;background:rgba(255,255,255,.14);color:#fff;border-radius:99px;padding:.4rem 1.2rem;font-size:1.05rem;font-weight:600;min-height:2.8rem}
+.mine .close:hover{background:rgba(255,255,255,.24)}
+.mine ol{list-style:none;display:grid;gap:.6rem}
+.mine li{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;background:rgba(255,255,255,.08);border-radius:1.1rem;padding:.9rem 1.2rem}
+.mine .when{font-size:1.7rem;font-weight:800;font-variant-numeric:tabular-nums;min-width:11.5rem;letter-spacing:-.02em}
+.mine .lab-tag{background:var(--c);color:#fff;border-radius:99px;padding:.2rem .9rem;font-weight:700;font-size:1.1rem}
+.mine .what{font-size:1.2rem;font-weight:500;flex:1 1 12rem;opacity:.92}
 
-/* ── 카드 ── */
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(21rem,100%),1fr));gap:1rem;align-items:start}
-.card{background:var(--card);border-radius:var(--r);overflow:hidden;border:2px solid var(--b);box-shadow:0 .3rem 1rem rgba(45,26,14,.06)}
-.card.hit{border-color:var(--c);box-shadow:0 0 0 .25rem var(--cl)}
-.band{background:var(--c);color:#fff;display:flex;align-items:center;gap:.6rem;padding:.6rem 1rem}
-.band .ico{font-size:1.8rem;line-height:1}
-.band h3{font-family:'Jalnan2','Noto Sans KR',sans-serif;font-weight:400;font-size:1.5rem;line-height:1.2}
-.body{padding:.9rem 1rem 1rem}
-.item + .item{border-top:2px dashed var(--b);margin-top:.9rem;padding-top:.9rem}
-.title{font-size:1.35rem;font-weight:900;line-height:1.3}
-.theme{font-size:.95rem;color:var(--m);font-weight:500;margin-top:.2rem}
-.slots{list-style:none;display:grid;gap:.45rem;margin-top:.7rem}
-.slot{background:var(--cl);border-radius:1rem;padding:.5rem .7rem;border:2px solid transparent}
-.slot.live{border-color:var(--live);background:#fff}
-.slot.done{opacity:.5}
-.slot.mine-slot{border-color:var(--c)}
-.time{font-family:'Jalnan2','Noto Sans KR',sans-serif;font-size:1.3rem;font-variant-numeric:tabular-nums;color:var(--cd);display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
-.badge{font-family:'Noto Sans KR',sans-serif;font-size:.8rem;font-weight:900;border-radius:99px;padding:.05rem .55rem;background:var(--live);color:#fff}
-.badge.end{background:var(--m)}
-.note{font-family:'Noto Sans KR',sans-serif;font-size:.95rem;font-weight:500;color:var(--m)}
-.who{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.35rem}
-.who span{background:#fff;border:1.5px solid var(--c);border-radius:99px;padding:.05rem .6rem;font-size:1.05rem;font-weight:700}
+/* ── 카드: 한 줄에 2개 ── */
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1.5rem}
+.card{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);padding:1.8rem 1.9rem 1.9rem;position:relative;overflow:hidden}
+.card::before{content:"";position:absolute;inset:0 0 auto 0;height:.4rem;background:var(--c)}
+.card.hit{box-shadow:0 0 0 .22rem var(--c),var(--shadow)}
+.head{display:flex;align-items:center;gap:.9rem;margin-bottom:1.1rem}
+.ico{flex:none;width:3.6rem;height:3.6rem;border-radius:1.15rem;background:var(--cl);display:grid;place-items:center;font-size:1.9rem;line-height:1}
+.head h3{font-size:1.5rem;font-weight:800;color:var(--cd);letter-spacing:-.03em;line-height:1.2}
+.item + .item{border-top:1px solid var(--line);margin-top:1.4rem;padding-top:1.4rem}
+.title{font-size:1.85rem;font-weight:800;line-height:1.3;letter-spacing:-.035em}
+.theme{font-size:1.05rem;color:var(--sub);font-weight:500;margin-top:.4rem}
+.slots{list-style:none;margin-top:1.1rem;display:grid;gap:.55rem}
+.slot{display:flex;align-items:center;gap:.5rem 1.1rem;flex-wrap:wrap;background:var(--cl);border-radius:1.15rem;padding:.8rem 1.1rem;position:relative}
+.slot.done{opacity:.45}
+.slot.live{background:var(--card);box-shadow:inset 0 0 0 .16rem var(--live)}
+.slot.mine-slot{box-shadow:inset 0 0 0 .16rem var(--c)}
+.time{font-size:1.6rem;font-weight:800;font-variant-numeric:tabular-nums;color:var(--cd);letter-spacing:-.02em;display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;min-width:11.2rem}
+.badge{font-size:.85rem;font-weight:700;border-radius:99px;padding:.12rem .65rem;background:var(--live);color:#fff;letter-spacing:0}
+.badge.end{background:var(--sub)}
+.note{font-size:1rem;font-weight:500;color:var(--sub);letter-spacing:-.01em}
+.who{display:flex;flex-wrap:wrap;gap:.4rem;flex:1 1 10rem}
+.who span{background:var(--card);border-radius:99px;padding:.2rem .85rem;font-size:1.25rem;font-weight:600;box-shadow:0 1px 2px rgba(30,35,48,.08)}
+.slot.live .who span:not(.me){background:var(--cl);box-shadow:none}
 .who span.me{background:var(--c);color:#fff}
-.desc{margin-top:.7rem;font-size:1rem;color:var(--m);white-space:pre-line}
+.desc{margin-top:1.1rem;font-size:1.15rem;line-height:1.65;color:var(--sub);white-space:pre-line}
 .desc.clamp{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.more{margin-top:.4rem;border:0;background:none;color:var(--cd);font-weight:900;font-size:.95rem;padding:.4rem 0;min-height:2.4rem}
+.more{margin-top:.5rem;border:0;background:none;color:var(--cd);font-weight:700;font-size:1.05rem;padding:.4rem 0;min-height:2.6rem}
 
 /* ── 상태 ── */
-.state{text-align:center;padding:3rem 1rem;background:var(--card);border:2px solid var(--b);border-radius:var(--r)}
-.state img{width:9rem;height:9rem;object-fit:contain}
-.state h2{font-family:'Jalnan2','Noto Sans KR',sans-serif;font-weight:400;font-size:1.8rem;margin:.6rem 0 .3rem}
-.state p{color:var(--m);font-size:1.05rem}
-.setup{max-width:40rem;margin:1rem auto 0;display:flex;gap:.5rem;flex-wrap:wrap}
-.setup input{flex:1 1 16rem;font:inherit;padding:.7rem 1rem;border:2px solid var(--b);border-radius:1rem}
-.setup button{border:0;background:var(--p);color:#fff;font-weight:900;border-radius:1rem;padding:.7rem 1.2rem;font-size:1rem}
-.teacher{max-width:40rem;margin:1.5rem auto 0;text-align:left;font-size:.95rem;color:var(--m)}
+.state{text-align:center;padding:4rem 1.5rem;background:var(--card);box-shadow:var(--shadow);border-radius:var(--r)}
+.state img{height:11rem;width:auto}
+.state h2{font-weight:800;font-size:2rem;letter-spacing:-.03em;margin:1rem 0 .4rem}
+.state p{color:var(--sub);font-size:1.15rem}
+.setup{max-width:40rem;margin:1.4rem auto 0;display:flex;gap:.6rem;flex-wrap:wrap}
+.setup input{flex:1 1 16rem;font:inherit;padding:.8rem 1.1rem;border:1px solid var(--line);border-radius:1rem;background:var(--bg)}
+.setup button{border:0;background:var(--p);color:#fff;font-weight:700;border-radius:1rem;padding:.8rem 1.4rem;font-size:1.05rem}
+.teacher{max-width:40rem;margin:1.8rem auto 0;text-align:left;font-size:.95rem;color:var(--sub)}
 .teacher summary{cursor:pointer;font-weight:700;padding:.5rem 0}
 .teacher p{font-size:.95rem;margin:.4rem 0;overflow-wrap:anywhere}
-.teacher button{margin-top:.5rem;border:2px solid var(--b);background:var(--card);border-radius:1rem;padding:.5rem 1rem;font-weight:700;min-height:2.6rem}
-.foot{margin-top:1.2rem;text-align:center;color:var(--m);font-size:.9rem}
+.teacher button{margin-top:.5rem;border:1px solid var(--line);background:var(--card);border-radius:1rem;padding:.5rem 1rem;font-weight:700;min-height:2.6rem}
+.foot{margin-top:2rem;text-align:center;color:var(--sub);font-size:.95rem}
 .foot .warn{color:var(--live);font-weight:700}
-@media (max-width:40rem){.date{font-size:1.9rem}.fox{width:3.5rem;height:3.5rem}.mine .when{min-width:0}}
-@media (prefers-reduced-motion:no-preference){.slot.live{animation:pulse 2s ease-in-out infinite}}
-@keyframes pulse{50%{box-shadow:0 0 0 .3rem rgba(217,45,32,.18)}}
+
+@media (max-width:52rem){
+  .grid{grid-template-columns:1fr}
+  .wrap{padding:1.1rem 1rem 3rem}
+  .date{font-size:2.1rem}.fox{height:4rem}
+  .card{padding:1.5rem 1.3rem 1.4rem}
+  .time,.mine .when{min-width:0}
+}
+@media (prefers-reduced-motion:no-preference){.slot.live .badge:not(.end){animation:pulse 1.8s ease-in-out infinite}}
+@keyframes pulse{50%{opacity:.55}}
 </style>
 </head>
 <body>
@@ -410,7 +422,7 @@ function render(){
   let html = '';
 
   if (sorted.length) {
-    html += `<section class="names"><h2>👆 내 이름을 눌러 보세요</h2><div class="name-list">` +
+    html += `<section class="names"><h2>내 이름을 눌러 보세요</h2><div class="name-list">` +
       sorted.map(n => `<button type="button" class="nm" data-name="${esc(n)}" aria-pressed="${n === state.me}">${esc(n)}</button>`).join('') +
       `</div></section>`;
   }
@@ -419,7 +431,7 @@ function render(){
     const mine = [];
     state.labs.forEach(l => l.items.forEach(it => it.slots.forEach(s => { if (s.names.includes(state.me)) mine.push({ l, it, s }); })));
     mine.sort((x, y) => pm(x.s.start) - pm(y.s.start));
-    html += `<section class="mine"><div class="mine-head"><h2>🦊 ${esc(state.me)}의 오늘</h2><button type="button" class="close" id="closeMine">닫기</button></div><ol>` +
+    html += `<section class="mine"><div class="mine-head"><h2>${esc(state.me)}의 오늘</h2><button type="button" class="close" id="closeMine">닫기</button></div><ol>` +
       mine.map(({ l, it, s }) => `<li><span class="when">${timeText(s)}</span><span class="lab-tag" style="--c:${l.style[1]}">${l.style[0]} ${esc(l.name)}</span><span class="what">${esc(it.title)}</span></li>`).join('') +
       `</ol></section>`;
   }
@@ -428,7 +440,7 @@ function render(){
     const [ico, c, cl, cd] = l.style;
     const hit = state.me && l.items.some(it => it.slots.some(s => s.names.includes(state.me)));
     return `<article class="card${hit ? ' hit' : ''}" style="--c:${c};--cl:${cl};--cd:${cd}">
-      <div class="band"><span class="ico" aria-hidden="true">${ico}</span><h3>${esc(l.name)}</h3></div>
+      <div class="head"><span class="ico" aria-hidden="true">${ico}</span><h3>${esc(l.name)}</h3></div>
       <div class="body">` + l.items.map((it, ii) => {
         const key = l.name + '|' + ii, isOpen = state.open.has(key);
         const long = it.desc.length > 90 || it.desc.split('\n').length > 3;

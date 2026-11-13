@@ -6,7 +6,7 @@
 
 - `index.html` — 학생용 화면
 - `schedule.gs` — 시트에서 오늘 내용을 꺼내 주는 Google Apps Script
-- `Jalnan2.ttf`, `images/` — 제목 글꼴과 여우 그림
+- `images/` — 여우 그림
 
 ## 설정 (최초 1회)
 
