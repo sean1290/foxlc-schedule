@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>오늘의 활동 · 폭스러닝센터</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦊</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+@font-face{font-family:'Jalnan2';src:url('Jalnan2.ttf') format('truetype');font-display:swap}
+:root{
+  --bg:#FFF8F0;--p:#FF6B35;--pl:#FFEDE5;--t:#2D1A0E;--m:#75604F;--b:#EDE4DC;--card:#fff;
+  --live:#D92D20;--r:1.5rem;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{font-size:100%;-webkit-text-size-adjust:100%}
+body{font-family:'Noto Sans KR',system-ui,sans-serif;background:var(--bg);color:var(--t);min-height:100vh;line-height:1.5;word-break:keep-all;overflow-wrap:anywhere}
+button{font-family:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid var(--t);outline-offset:2px}
+.wrap{max-width:110rem;margin:0 auto;padding:1rem 1rem 3rem}
+
+/* ── 머리 ── */
+.top{display:flex;align-items:center;gap:.9rem;flex-wrap:wrap;margin-bottom:1rem}
+.fox{width:4.5rem;height:4.5rem;object-fit:contain;flex:none}
+.top-text{flex:1 1 14rem;min-width:0}
+.eyebrow{font-size:1rem;font-weight:700;color:var(--p)}
+.date{font-family:'Jalnan2','Noto Sans KR',sans-serif;font-size:2.4rem;line-height:1.15;letter-spacing:-.02em}
+.date small{font-size:1.3rem;color:var(--m);margin-left:.4rem;font-family:'Noto Sans KR',sans-serif;font-weight:700}
+.tools{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+.clock{font-family:'Jalnan2','Noto Sans KR',sans-serif;font-size:1.7rem;font-variant-numeric:tabular-nums;background:var(--card);border:2px solid var(--b);border-radius:99px;padding:.3rem 1rem}
+.fs{display:flex;align-items:center;background:var(--card);border:2px solid var(--b);border-radius:99px;overflow:hidden}
+.fs button{border:0;background:none;min-width:2.9rem;min-height:2.9rem;font-weight:900;font-size:1.05rem;padding:0 .7rem}
+.fs button:hover{background:var(--pl)}
+.fs button:disabled{opacity:.35;cursor:default;background:none}
+.fs button + button{border-left:2px solid var(--b)}
+.fs .big{font-size:1.4rem}
+
+/* ── 이름 찾기 ── */
+.names{background:var(--card);border:2px solid var(--b);border-radius:var(--r);padding:.9rem 1rem;margin-bottom:1rem}
+.names h2{font-size:1.1rem;font-weight:900;margin-bottom:.6rem}
+.name-list{display:flex;flex-wrap:wrap;gap:.45rem}
+.nm{border:2px solid var(--b);background:var(--bg);border-radius:99px;padding:.35rem .9rem;font-size:1.1rem;font-weight:700;min-height:2.6rem}
+.nm:hover{border-color:var(--p)}
+.nm[aria-pressed="true"]{background:var(--p);border-color:var(--p);color:#fff}
+
+.mine{background:var(--t);color:#fff;border-radius:var(--r);padding:1.1rem 1.2rem;margin-bottom:1rem}
+.mine-head{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:.7rem}
+.mine h2{font-family:'Jalnan2','Noto Sans KR',sans-serif;font-size:1.6rem;font-weight:400}
+.mine .close{border:2px solid rgba(255,255,255,.5);background:none;color:#fff;border-radius:99px;padding:.3rem 1rem;font-size:1rem;font-weight:700;min-height:2.6rem}
+.mine ol{list-style:none;display:grid;gap:.5rem}
+.mine li{display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;background:rgba(255,255,255,.1);border-radius:1rem;padding:.6rem .9rem}
+.mine .when{font-family:'Jalnan2','Noto Sans KR',sans-serif;font-size:1.5rem;font-variant-numeric:tabular-nums;min-width:10.5rem}
+.mine .lab-tag{background:var(--c);color:#fff;border-radius:99px;padding:.15rem .8rem;font-weight:900;font-size:1.05rem}
+.mine .what{font-size:1.1rem;font-weight:500;flex:1 1 10rem}
+
+/* ── 카드 ── */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(21rem,100%),1fr));gap:1rem;align-items:start}
+.card{background:var(--card);border-radius:var(--r);overflow:hidden;border:2px solid var(--b);box-shadow:0 .3rem 1rem rgba(45,26,14,.06)}
+.card.hit{border-color:var(--c);box-shadow:0 0 0 .25rem var(--cl)}
+.band{background:var(--c);color:#fff;display:flex;align-items:center;gap:.6rem;padding:.6rem 1rem}
+.band .ico{font-size:1.8rem;line-height:1}
+.band h3{font-family:'Jalnan2','Noto Sans KR',sans-serif;font-weight:400;font-size:1.5rem;line-height:1.2}
+.body{padding:.9rem 1rem 1rem}
+.item + .item{border-top:2px dashed var(--b);margin-top:.9rem;padding-top:.9rem}
+.title{font-size:1.35rem;font-weight:900;line-height:1.3}
+.theme{font-size:.95rem;color:var(--m);font-weight:500;margin-top:.2rem}
+.slots{list-style:none;display:grid;gap:.45rem;margin-top:.7rem}
+.slot{background:var(--cl);border-radius:1rem;padding:.5rem .7rem;border:2px solid transparent}
+.slot.live{border-color:var(--live);background:#fff}
+.slot.done{opacity:.5}
+.slot.mine-slot{border-color:var(--c)}
+.time{font-family:'Jalnan2','Noto Sans KR',sans-serif;font-size:1.3rem;font-variant-numeric:tabular-nums;color:var(--cd);display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+.badge{font-family:'Noto Sans KR',sans-serif;font-size:.8rem;font-weight:900;border-radius:99px;padding:.05rem .55rem;background:var(--live);color:#fff}
+.badge.end{background:var(--m)}
+.note{font-family:'Noto Sans KR',sans-serif;font-size:.95rem;font-weight:500;color:var(--m)}
+.who{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.35rem}
+.who span{background:#fff;border:1.5px solid var(--c);border-radius:99px;padding:.05rem .6rem;font-size:1.05rem;font-weight:700}
+.who span.me{background:var(--c);color:#fff}
+.desc{margin-top:.7rem;font-size:1rem;color:var(--m);white-space:pre-line}
+.desc.clamp{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.more{margin-top:.4rem;border:0;background:none;color:var(--cd);font-weight:900;font-size:.95rem;padding:.4rem 0;min-height:2.4rem}
+
+/* ── 상태 ── */
+.state{text-align:center;padding:3rem 1rem;background:var(--card);border:2px solid var(--b);border-radius:var(--r)}
+.state img{width:9rem;height:9rem;object-fit:contain}
+.state h2{font-family:'Jalnan2','Noto Sans KR',sans-serif;font-weight:400;font-size:1.8rem;margin:.6rem 0 .3rem}
+.state p{color:var(--m);font-size:1.05rem}
+.setup{max-width:40rem;margin:1rem auto 0;display:flex;gap:.5rem;flex-wrap:wrap}
+.setup input{flex:1 1 16rem;font:inherit;padding:.7rem 1rem;border:2px solid var(--b);border-radius:1rem}
+.setup button{border:0;background:var(--p);color:#fff;font-weight:900;border-radius:1rem;padding:.7rem 1.2rem;font-size:1rem}
+.foot{margin-top:1.2rem;text-align:center;color:var(--m);font-size:.9rem}
+.foot .warn{color:var(--live);font-weight:700}
+@media (max-width:40rem){.date{font-size:1.9rem}.fox{width:3.5rem;height:3.5rem}.mine .when{min-width:0}}
+@media (prefers-reduced-motion:no-preference){.slot.live{animation:pulse 2s ease-in-out infinite}}
+@keyframes pulse{50%{box-shadow:0 0 0 .3rem rgba(217,45,32,.18)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <img class="fox" src="images/fox-mascot.png" alt="">
+    <div class="top-text">
+      <div class="eyebrow">오늘의 활동</div>
+      <h1 class="date" id="date">&nbsp;</h1>
+    </div>
+    <div class="tools">
+      <div class="clock" id="clock" aria-label="지금 시각"></div>
+      <div class="fs" role="group" aria-label="글자 크기">
+        <button type="button" id="fsDown" aria-label="글자 작게">가−</button>
+        <button type="button" id="fsUp" class="big" aria-label="글자 크게">가+</button>
+      </div>
+    </div>
+  </header>
+  <main id="main" aria-live="polite"></main>
+  <div class="foot" id="foot"></div>
+</div>
+
+<script>
+/* ═══════════ 설정 ═══════════
+   schedule.gs 를 웹 앱으로 배포한 주소(…/exec)를 여기에 넣으세요.
+   비워 두면 화면에서 한 번 붙여넣을 수 있고, 그 기기에 저장됩니다. */
+const DEFAULT_API_URL = '';
+const REFRESH_MS = 60 * 1000;        // 시트 다시 읽는 간격
+const NAME_RESET_MS = 90 * 1000;     // 이름 선택 자동 해제 (다음 친구를 위해)
+
+/* ═══════════ 작은 도구들 ═══════════ */
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const store = {
+  get(k){ try { return localStorage.getItem(k); } catch(e){ return null; } },
+  set(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
+};
+const params = new URLSearchParams(location.search);
+if (params.get('api')) store.set('schedule_api', params.get('api'));
+const dateOverride = /^\d{4}-\d{2}-\d{2}$/.test(params.get('date') || '') ? params.get('date') : '';
+
+/* ═══════════ 글자 크기 ═══════════ */
+const FS_MIN = 70, FS_MAX = 220, FS_STEP = 10;
+let fs = Number(store.get('schedule_fs')) || 100;
+function applyFs(){
+  fs = Math.min(FS_MAX, Math.max(FS_MIN, fs));
+  document.documentElement.style.fontSize = fs + '%';
+  $('fsDown').disabled = fs <= FS_MIN;
+  $('fsUp').disabled = fs >= FS_MAX;
+  store.set('schedule_fs', String(fs));
+}
+$('fsDown').onclick = () => { fs -= FS_STEP; applyFs(); };
+$('fsUp').onclick = () => { fs += FS_STEP; applyFs(); };
+applyFs();
+
+/* ═══════════ 연구소 색·그림 ═══════════ */
+const LAB_STYLES = [
+  [/AI\s*프로젝트/i,  '🧩', '#6D4FB8', '#EFEAFB', '#523A93'],
+  [/AI|인공지능/i,     '🤖', '#2563C9', '#E6EEFC', '#1B4C9E'],
+  [/합창|음악/,        '🎵', '#A8389B', '#F8E8F6', '#842A7A'],
+  [/성장/,             '🌱', '#4D8A2A', '#EAF5E2', '#3A6B1E'],
+  [/SEL/i,             '💗', '#CF3F68', '#FCE8EE', '#A62E51'],
+  [/튼튼/,             '💪', '#23855B', '#E2F5EC', '#1A6645'],
+  [/영어\s*프로젝트/,  '🌍', '#0B7285', '#E0F4F7', '#085866'],
+  [/영어/,             '🔤', '#0B7FA6', '#E1F2F9', '#086384'],
+  [/플레이/,           '🎲', '#B85C00', '#FFF0DC', '#8F4700'],
+  [/미술/,             '🎨', '#C2410C', '#FDEBE3', '#9A3309'],
+  [/수리|수학/,        '🔢', '#3F6FA0', '#E7EFF7', '#2F577F'],
+  [/딥러닝/,           '📚', '#4F5596', '#EBECF7', '#3D4278'],
+];
+const FALLBACK = [['⭐','#8A5A2B','#F6ECE1','#6B4520'],['⭐','#2F7C83','#E3F3F4','#236166'],['⭐','#7A4FA0','#F0E8F7','#5F3C7E']];
+function labStyle(name){
+  for (const [re, ...s] of LAB_STYLES) if (re.test(name)) return s;
+  let h = 0; for (const ch of name) h = (h * 31 + ch.codePointAt(0)) >>> 0;
+  return FALLBACK[h % FALLBACK.length];
+}
+
+/* ═══════════ 시트 글자 해석 ═══════════ */
+const T = '(\\d{1,2})(?:\\s*[:：시]\\s*(\\d{1,2})?\\s*분?)?';
+const RANGE_RE = new RegExp('^' + T + '\\s*(?:~|〜|-|–|—)\\s*' + T);
+const SINGLE_RE = /^(\d{1,2})\s*(?::\s*(\d{2})|시(?:\s*(\d{1,2})\s*분)?)/;
+const NAME_RE = /^[가-힣]{2,4}$/;
+
+function toMin(h, m){
+  h = Number(h); m = Number(m || 0);
+  if (!(h >= 0 && h <= 23 && m >= 0 && m <= 59)) return null;
+  return h * 60 + m;
+}
+// 센터는 낮~저녁에 열려요: 1~8시는 오후로 봅니다 (정렬·지금 표시용)
+const pm = min => (min != null && min < 9 * 60) ? min + 12 * 60 : min;
+const fmt = min => Math.floor(min / 60) + ':' + String(min % 60).padStart(2, '0');
+
+function splitNames(text){
+  const notes = [];
+  const bare = text.replace(/\([^)]*\)/g, m => { notes.push(m); return ' '; }).replace(/^[\s\-–•*:：]+/, '').trim();
+  if (!bare) return null;
+  const tokens = bare.split(/[,，、]/).map(s => s.trim()).filter(Boolean);
+  if (!tokens.length || !tokens.every(t => NAME_RE.test(t))) return null;
+  return { names: tokens, note: notes.join(' ') };
+}
+
+const INLINE_RANGE_RE = /\d{1,2}\s*:\s*\d{2}\s*(?:~|〜|-|–|—)\s*\d{1,2}\s*:\s*\d{2}/;
+
+// 한 줄에 "이름 시간 / 이름 시간" 처럼 여러 개가 있으면 나눠서 읽어요
+function parseTimeLine(line){
+  const parts = line.split(/\s+\/\s+/);
+  if (parts.length > 1) {
+    const all = parts.map(parseTimePart);
+    if (all.every(Boolean)) return all.flat();
+  }
+  return parseTimePart(line);
+}
+
+function parseTimePart(line){
+  // "김재이 15:30~16:00", "Class 1: 13:00 ~ 14:00" 처럼 시간 앞에 짧은 말이 붙은 경우
+  const at = line.search(INLINE_RANGE_RE);
+  if (at > 0 && at <= 16) {
+    const head = line.slice(0, at).trim();
+    const n = splitNames(head);
+    const label = /[:：]$/.test(head) ? head.replace(/\s*[:：]$/, '') : '';
+    if (head && (n || label)) {
+      const slots = parseTimePart(line.slice(at));
+      if (slots && slots.every(s => !s.names.length)) {
+        slots.forEach(s => { if (n) s.names = n.names.slice(); else s.note = [label, s.note].filter(Boolean).join(' '); });
+        slots.fixed = !!n || undefined;
+        return slots;
+      }
+    }
+  }
+  let rest = line.replace(/^[\s\-–•*]*(?:시간\s*[:：])?\s*/, '');
+  const slots = [];
+  for (;;) {
+    const m = RANGE_RE.exec(rest);
+    if (!m) break;
+    const bareBoth = !/[:：시]/.test(m[0]);
+    const a = toMin(m[1], m[2]), b = toMin(m[3], m[4]);
+    if (a == null || b == null) break;
+    if (bareBoth && !(Number(m[1]) >= 9 && Number(m[3]) <= 21)) break;   // "2-3명" 같은 글자 방지
+    slots.push({ start: a, end: b, names: [], note: '' });
+    rest = rest.slice(m[0].length);
+    const sep = /^\s*[\/,]\s*/.exec(rest);
+    if (!sep) break;
+    rest = rest.slice(sep[0].length);
+  }
+  if (!slots.length) {
+    const m = SINGLE_RE.exec(rest);
+    if (!m) return null;
+    const a = toMin(m[1], m[2] || m[3]);
+    if (a == null) return null;
+    slots.push({ start: a, end: null, names: [], note: '' });
+    rest = rest.slice(m[0].length);
+  }
+  rest = rest.trim();
+  if (rest) {
+    const n = splitNames(rest);
+    for (const s of slots) {
+      if (n) { s.names = n.names.slice(); s.note = n.note; }
+      else s.note = rest.replace(/^[\-–:：\s]+/, '');
+    }
+  }
+  return slots;
+}
+
+const norm = s => s.replace(/[\[\]"'“”‘’「」\s]/g, '').toLowerCase();
+
+function parseBody(text, title){
+  const slots = [], desc = [];
+  let open = null;          // 방금 만든 시간칸 (다음 줄의 이름을 받을 수 있음)
+  let waiting = null;       // 시간보다 먼저 나온 이름 줄
+  for (const raw of String(text).replace(/\r/g, '').split('\n')) {
+    const line = raw.trim();
+    if (!line) { if (desc.length && desc[desc.length - 1] !== '') desc.push(''); continue; }
+    const ts = parseTimeLine(line);
+    if (ts) {
+      if (waiting && ts.every(s => !s.names.length)) { ts.forEach(s => s.names = waiting.names.slice()); open = null; }
+      else open = ts.every(s => !s.names.length) ? ts : null;
+      waiting = null;
+      slots.push(...ts);
+      continue;
+    }
+    const n = splitNames(line);
+    if (n && open) {
+      open.forEach(s => { s.names = n.names.slice(); if (n.note) s.note = [s.note, n.note].filter(Boolean).join(' '); });
+      open = null; continue;
+    }
+    open = null;
+    if (n && n.names.length >= 2 && !n.note) { waiting = n; continue; }
+    if (/^[\[\]\-\s]*$/.test(line)) continue;
+    if (title && norm(line) === norm(title)) continue;
+    desc.push(line);
+  }
+  if (waiting) desc.push(waiting.names.join(', '));
+  while (desc.length && desc[desc.length - 1] === '') desc.pop();
+  while (desc.length && desc[0] === '') desc.shift();
+  slots.forEach((s, i) => s.i = i);
+  slots.sort((x, y) => (pm(x.start) - pm(y.start)) || (x.i - y.i));
+  return { slots, desc: desc.join('\n') };
+}
+
+function parseLabel(a){
+  const lines = a.replace(/\r/g, '').split('\n').map(s => s.trim()).filter(Boolean);
+  let name = lines.shift() || '활동';
+  const extra = [];
+  for (const l of lines) {
+    if (!extra.length && l.length <= 6 && !/[:：]/.test(l)) name += ' ' + l;
+    else extra.push(l);
+  }
+  const theme = extra.find(l => /주간\s*주제/.test(l)) || '';
+  return { name, theme: theme.replace(/\s*[:：]\s*/, ': ') };
+}
+
+function parseTitle(t){
+  const lines = String(t).replace(/\r/g, '').split('\n').map(s => s.trim());
+  // 제목 칸에 시간까지 같이 적은 경우: 첫 문단만 제목으로
+  const hasTime = lines.some(l => parseTimeLine(l));
+  let head = lines, tail = [];
+  if (hasTime) {
+    const cut = lines.findIndex((l, i) => i > 0 && (!l || parseTimeLine(l)));
+    if (cut > 0) { head = lines.slice(0, cut); tail = lines.slice(cut); }
+  }
+  let title = head.filter(Boolean).join(' ').replace(/\s+/g, ' ').trim();
+  const m = /^\[(.*)\]$/.exec(title); if (m) title = m[1].trim();
+  title = title.replace(/^"(.*)"$/, '$1').trim();
+  return { title, tail: tail.join('\n') };
+}
+
+function buildLabs(rows){
+  const groups = []; let cur = null, pending = null;
+  for (const [a, b] of rows) {
+    if (a.trim()) { cur = { label: a, items: [] }; groups.push(cur); pending = { t: b, b: '' }; cur.items.push(pending); continue; }
+    if (!cur) { cur = { label: '', items: [] }; groups.push(cur); }
+    if (pending) { pending.b = b; pending = null; }
+    else { pending = { t: b, b: '' }; cur.items.push(pending); }
+  }
+  const labs = [];
+  for (const g of groups) {
+    const { name, theme } = parseLabel(g.label);
+    const items = [];
+    for (const it of g.items) {
+      if (!it.t.trim() && !it.b.trim()) continue;
+      const { title, tail } = parseTitle(it.t);
+      const { slots, desc } = parseBody([tail, it.b].filter(s => s.trim()).join('\n'), title);
+      if (!title && !slots.length && !desc) continue;
+      items.push({ title, slots, desc });
+    }
+    if (items.length) labs.push({ name, theme, items, style: labStyle(name) });
+  }
+  return labs;
+}
+
+/* ═══════════ 화면 그리기 ═══════════ */
+const state = { data: null, labs: [], me: '', open: new Set(), stale: false, error: '' };
+let meTimer = null;
+const DOW = ['일','월','화','수','목','금','토'];
+
+function nowMin(){ const d = new Date(); return d.getHours() * 60 + d.getMinutes(); }
+function localDate(){ const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
+
+function slotStatus(s){
+  if (!state.data || state.data.date !== localDate()) return '';
+  const n = nowMin(), a = pm(s.start), b = s.end == null ? null : pm(s.end);
+  if (b == null || b <= a) return '';
+  if (n >= b) return 'done';
+  if (n >= a) return 'live';
+  return '';
+}
+const timeText = s => fmt(s.start) + (s.end == null ? '' : ' ~ ' + fmt(s.end));
+
+function renderHeader(){
+  const iso = state.data && state.data.date || localDate();
+  const [y, m, d] = iso.split('-').map(Number);
+  const dow = DOW[new Date(y, m - 1, d).getDay()];
+  $('date').innerHTML = `${m}월 ${d}일 ${dow}요일` + (state.data && state.data.week ? `<small>${esc(state.data.week.trim())}</small>` : '');
+}
+
+function render(){
+  renderHeader();
+  const main = $('main');
+  const api = store.get('schedule_api') || DEFAULT_API_URL;
+  if (!api) {
+    main.innerHTML = `<div class="state"><img src="images/sitting-fox.png" alt=""><h2>시트와 아직 연결되지 않았어요</h2>
+      <p>선생님, schedule.gs 를 웹 앱으로 배포한 주소를 붙여넣어 주세요.</p>
+      <form class="setup" id="setup"><input id="apiInput" type="url" required placeholder="https://script.google.com/macros/s/…/exec" aria-label="웹 앱 주소"><button>연결하기</button></form></div>`;
+    $('setup').onsubmit = e => { e.preventDefault(); store.set('schedule_api', $('apiInput').value.trim()); load(); };
+    return;
+  }
+  if (!state.data) {
+    main.innerHTML = state.error
+      ? `<div class="state"><img src="images/sitting-fox.png" alt=""><h2>시간표를 불러오지 못했어요</h2><p>선생님께 알려 주세요. 잠시 뒤 다시 시도할게요.</p></div>`
+      : `<div class="state"><img src="images/sitting-fox.png" alt=""><h2>시간표를 가져오고 있어요…</h2></div>`;
+    return;
+  }
+  if (!state.labs.length) {
+    main.innerHTML = `<div class="state"><img src="images/sitting-fox.png" alt=""><h2>오늘은 적힌 활동이 없어요</h2><p>선생님께 물어보세요!</p></div>`;
+    return;
+  }
+
+  const names = new Set();
+  state.labs.forEach(l => l.items.forEach(it => it.slots.forEach(s => s.names.forEach(n => names.add(n)))));
+  if (state.me && !names.has(state.me)) state.me = '';
+  const sorted = [...names].sort((a, b) => a.localeCompare(b, 'ko'));
+  let html = '';
+
+  if (sorted.length) {
+    html += `<section class="names"><h2>👆 내 이름을 눌러 보세요</h2><div class="name-list">` +
+      sorted.map(n => `<button type="button" class="nm" data-name="${esc(n)}" aria-pressed="${n === state.me}">${esc(n)}</button>`).join('') +
+      `</div></section>`;
+  }
+
+  if (state.me) {
+    const mine = [];
+    state.labs.forEach(l => l.items.forEach(it => it.slots.forEach(s => { if (s.names.includes(state.me)) mine.push({ l, it, s }); })));
+    mine.sort((x, y) => pm(x.s.start) - pm(y.s.start));
+    html += `<section class="mine"><div class="mine-head"><h2>🦊 ${esc(state.me)}의 오늘</h2><button type="button" class="close" id="closeMine">닫기</button></div><ol>` +
+      mine.map(({ l, it, s }) => `<li><span class="when">${timeText(s)}</span><span class="lab-tag" style="--c:${l.style[1]}">${l.style[0]} ${esc(l.name)}</span><span class="what">${esc(it.title)}</span></li>`).join('') +
+      `</ol></section>`;
+  }
+
+  html += `<div class="grid">` + state.labs.map((l, li) => {
+    const [ico, c, cl, cd] = l.style;
+    const hit = state.me && l.items.some(it => it.slots.some(s => s.names.includes(state.me)));
+    return `<article class="card${hit ? ' hit' : ''}" style="--c:${c};--cl:${cl};--cd:${cd}">
+      <div class="band"><span class="ico" aria-hidden="true">${ico}</span><h3>${esc(l.name)}</h3></div>
+      <div class="body">` + l.items.map((it, ii) => {
+        const key = l.name + '|' + ii, isOpen = state.open.has(key);
+        const long = it.desc.length > 90 || it.desc.split('\n').length > 3;
+        return `<div class="item">` +
+          (it.title ? `<div class="title">${esc(it.title)}</div>` : '') +
+          (ii === 0 && l.theme ? `<div class="theme">${esc(l.theme)}</div>` : '') +
+          (it.slots.length ? `<ul class="slots">` + it.slots.map(s => {
+            const st = slotStatus(s), me = state.me && s.names.includes(state.me);
+            return `<li class="slot ${st}${me ? ' mine-slot' : ''}"><div class="time">${timeText(s)}` +
+              (st === 'live' ? `<span class="badge">지금</span>` : st === 'done' ? `<span class="badge end">끝</span>` : '') +
+              (s.note ? `<span class="note">${esc(s.note)}</span>` : '') + `</div>` +
+              (s.names.length ? `<div class="who">` + s.names.map(n => `<span${n === state.me ? ' class="me"' : ''}>${esc(n)}</span>`).join('') + `</div>` : '') +
+              `</li>`;
+          }).join('') + `</ul>` : '') +
+          (it.desc ? `<p class="desc${long && !isOpen ? ' clamp' : ''}">${esc(it.desc)}</p>` +
+            (long ? `<button type="button" class="more" data-key="${esc(key)}" aria-expanded="${isOpen}">${isOpen ? '접기 ▲' : '더 보기 ▼'}</button>` : '') : '') +
+          `</div>`;
+      }).join('') + `</div></article>`;
+  }).join('') + `</div>`;
+
+  main.innerHTML = html;
+}
+
+$('main').addEventListener('click', e => {
+  const nm = e.target.closest('.nm');
+  if (nm) {
+    state.me = state.me === nm.dataset.name ? '' : nm.dataset.name;
+    clearTimeout(meTimer);
+    if (state.me) meTimer = setTimeout(() => { state.me = ''; render(); }, NAME_RESET_MS);
+    render();
+    const again = [...document.querySelectorAll('.nm')].find(b => b.dataset.name === nm.dataset.name);
+    if (again) again.focus({ preventScroll: true });
+    return;
+  }
+  if (e.target.closest('#closeMine')) { state.me = ''; clearTimeout(meTimer); render(); return; }
+  const more = e.target.closest('.more');
+  if (more) { const k = more.dataset.key; state.open.has(k) ? state.open.delete(k) : state.open.add(k); render(); }
+});
+
+function renderFoot(){
+  const d = state.data;
+  let t = '';
+  if (d && d.updated) t = `시트에서 ${esc(d.updated.slice(11, 16))}에 가져왔어요 · 1분마다 새로 확인해요`;
+  if (state.stale) t += ` <span class="warn">· 지금은 연결이 안 돼서 마지막 내용을 보여 주고 있어요</span>`;
+  $('foot').innerHTML = t;
+}
+
+function tick(){
+  const d = new Date();
+  $('clock').textContent = d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0');
+}
+
+/* ═══════════ 시트에서 가져오기 ═══════════ */
+function accept(data){
+  state.data = data;
+  state.labs = data.found === false ? [] : buildLabs(data.rows || []);
+}
+let loading = false;
+async function load(){
+  const api = store.get('schedule_api') || DEFAULT_API_URL;
+  if (!api) { render(); return; }
+  if (loading) return;
+  loading = true;
+  if (!state.data) render();
+  try {
+    const url = api + (api.includes('?') ? '&' : '?') + (dateOverride ? 'date=' + dateOverride + '&' : '') + 't=' + Date.now();
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 25000);
+    const res = await fetch(url, { signal: ctrl.signal, cache: 'no-store' });
+    clearTimeout(timer);
+    const data = await res.json();
+    if (data.status !== 'ok') throw new Error(data.message || 'error');
+    accept(data);
+    state.stale = false; state.error = '';
+    store.set('schedule_last', JSON.stringify(data));
+  } catch (err) {
+    state.error = String(err && err.message || err);
+    if (!state.data) {
+      // 연결이 안 되면, 같은 날 마지막으로 받은 내용을 보여 줍니다
+      try {
+        const last = JSON.parse(store.get('schedule_last') || 'null');
+        if (last && last.date === (dateOverride || localDate())) accept(last);
+      } catch (e) {}
+    }
+    state.stale = !!state.data;
+  } finally {
+    loading = false;
+  }
+  render(); renderFoot();
+}
+
+tick(); render(); load();
+setInterval(load, REFRESH_MS);
+setInterval(() => { tick(); }, 10 * 1000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) load(); });
+</script>
+</body>
+</html>
