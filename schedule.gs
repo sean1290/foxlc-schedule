@@ -13,6 +13,10 @@ var SCHEDULE_SPREADSHEET_ID = '1Q1F7Hda6fglcwuvLKCP9S3Xf2PiwQHyp9p1iCekI2Mg';
 var SCHEDULE_SHEET_NAME = '활동 내용';
 var SCHEDULE_CACHE_SECONDS = 30;
 
+// 튼튼: 학생이 화면에서 이름을 끌어 고른 시간을 저장하는 탭 (없으면 처음 저장할 때 만들어요)
+var TUNTEUN_SHEET_NAME = '튼튼_배정';
+var TUNTEUN_SLOTS = { '16:00~16:30': true, '16:30~17:00': true, '': true };
+
 function doGet(e) {
   var p = (e && e.parameter) || {};
   var ss = SpreadsheetApp.openById(SCHEDULE_SPREADSHEET_ID);
@@ -20,6 +24,10 @@ function doGet(e) {
   var date = /^\d{4}-\d{2}-\d{2}$/.test(p.date || '')
     ? p.date
     : Utilities.formatDate(new Date(), tz, 'yyyy-MM-dd');
+
+  if (p.action === 'tunteun') {
+    return json_(moveTunteun_(ss, tz, date, p.name, p.slot));
+  }
 
   var cache = CacheService.getScriptCache();
   var key = 'schedule:' + date;
@@ -41,7 +49,71 @@ function doGet(e) {
       cache.put(key, body, SCHEDULE_CACHE_SECONDS);
     }
   }
-  return ContentService.createTextOutput(body).setMimeType(ContentService.MimeType.JSON);
+  var obj = JSON.parse(body);
+  if (obj.status === 'ok') {
+    try { obj.tunteun = readTunteun_(ss, date); }
+    catch (err) { obj.tunteunError = String(err && err.message || err); }
+  }
+  return json_(obj);
+}
+
+function json_(obj) {
+  return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
+}
+
+/* ───────── 튼튼 시간 고르기 ───────── */
+
+function tunteunSheet_(ss, create) {
+  var sh = ss.getSheetByName(TUNTEUN_SHEET_NAME);
+  if (!sh && create) {
+    sh = ss.insertSheet(TUNTEUN_SHEET_NAME);
+    sh.getRange('A:D').setNumberFormat('@');   // 날짜·시간이 자동 변환되지 않게 글자로
+    sh.getRange(1, 1, 1, 4).setValues([['날짜', '이름', '튼튼 시간', '바꾼 시각']]).setFontWeight('bold');
+    sh.setFrozenRows(1);
+  }
+  return sh;
+}
+
+/** 그날의 { 이름: '16:00~16:30' | '16:30~17:00' | '' } ('' = 다시 빼 둠) */
+function readTunteun_(ss, date) {
+  var out = {};
+  var sh = tunteunSheet_(ss, false);
+  if (!sh || sh.getLastRow() < 2) return out;
+  var v = sh.getRange(2, 1, sh.getLastRow() - 1, 3).getDisplayValues();
+  for (var i = 0; i < v.length; i++) {
+    if (v[i][0] === date && v[i][1]) out[v[i][1]] = v[i][2];
+  }
+  return out;
+}
+
+function moveTunteun_(ss, tz, date, name, slot) {
+  name = String(name || '').trim();
+  slot = String(slot == null ? '' : slot).trim();
+  if (!/^[가-힣A-Za-z]{1,10}$/.test(name)) return { status: 'error', message: '이름이 올바르지 않아요' };
+  if (!Object.prototype.hasOwnProperty.call(TUNTEUN_SLOTS, slot)) return { status: 'error', message: '시간 칸이 올바르지 않아요' };
+
+  var lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    var sh = tunteunSheet_(ss, true);
+    var now = Utilities.formatDate(new Date(), tz, 'yyyy-MM-dd HH:mm:ss');
+    var last = sh.getLastRow(), row = 0;
+    if (last >= 2) {
+      var v = sh.getRange(2, 1, last - 1, 2).getDisplayValues();
+      for (var i = 0; i < v.length; i++) {
+        if (v[i][0] === date && v[i][1] === name) { row = i + 2; break; }
+      }
+    }
+    if (row) {
+      sh.getRange(row, 3, 1, 2).setValues([[slot, now]]);
+    } else {
+      sh.getRange(last + 1, 1, 1, 4).setNumberFormat('@').setValues([[date, name, slot, now]]);
+    }
+    SpreadsheetApp.flush();
+  } finally {
+    lock.releaseLock();
+  }
+  return { status: 'ok', date: date, tunteun: readTunteun_(ss, date) };
 }
 
 /**

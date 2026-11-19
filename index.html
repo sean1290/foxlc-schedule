@@ -87,6 +87,35 @@ button:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
 .desc.clamp{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .more{margin-top:.5rem;border:0;background:none;color:var(--cd);font-weight:700;font-size:1.05rem;padding:.4rem 0;min-height:2.6rem}
 
+/* ── 튼튼: 끌어서 시간 고르기 ── */
+.card.wide{grid-column:1/-1}
+.board{margin-top:1.2rem;display:grid;gap:1rem}
+.zones{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}
+.zone{border-radius:1.25rem;padding:1rem 1.1rem 1.15rem;border:2px dashed var(--line);background:var(--bg);transition:border-color .15s,background .15s,transform .15s,box-shadow .15s}
+.zone.time-zone{background:var(--cl);border-color:color-mix(in srgb,var(--c) 40%,transparent)}
+.zone.time-zone.done{opacity:.55}
+.zone.time-zone.live{box-shadow:inset 0 0 0 .16rem var(--live);border-color:transparent}
+body.dragging .board .zone{border-color:var(--c)}
+.zone.over{border-style:solid;border-color:var(--c);background:#fff;transform:scale(1.015);box-shadow:0 .5rem 1.4rem rgba(30,35,48,.12)}
+.zone-head{display:flex;align-items:center;gap:.4rem .8rem;flex-wrap:wrap;margin-bottom:.8rem;min-height:2.4rem}
+.zone-title{font-size:1.25rem;font-weight:800;letter-spacing:-.02em}
+.zone .time{min-width:0}
+.hint{font-size:1rem;color:var(--sub)}
+.count{margin-left:auto;font-size:1rem;font-weight:700;color:var(--cd);background:#fff;border-radius:99px;padding:.15rem .75rem}
+.put{border:0;background:var(--c);color:#fff;font-weight:700;font-size:1rem;border-radius:99px;padding:.35rem 1rem;min-height:2.4rem}
+.pool .put{margin-left:auto}
+.drop{display:flex;flex-wrap:wrap;gap:.55rem;min-height:3.4rem;align-content:flex-start}
+.chip{border:0;background:#fff;border-radius:99px;padding:.5rem 1.15rem .5rem .85rem;font-size:1.35rem;font-weight:700;min-height:3.3rem;display:inline-flex;align-items:center;gap:.45rem;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;box-shadow:0 1px 2px rgba(30,35,48,.1),0 .25rem .7rem rgba(30,35,48,.07);transition:box-shadow .15s,transform .15s}
+.chip::before{content:"";width:.55rem;height:1rem;flex:none;opacity:.35;background:radial-gradient(circle,currentColor 1.2px,transparent 1.5px) 0 0/.275rem .333rem}
+.chip:hover{box-shadow:0 0 0 .14rem var(--c),0 .25rem .7rem rgba(30,35,48,.1)}
+.chip:active{transform:scale(.97)}
+.chip.me{box-shadow:0 0 0 .18rem var(--c),0 .25rem .7rem rgba(30,35,48,.08)}
+.chip.sel{background:var(--c);color:#fff}
+.chip.lifting{opacity:.25}
+.chip.ghost{position:fixed;left:0;top:0;z-index:50;margin:0;pointer-events:none;cursor:grabbing;box-shadow:0 1rem 2.4rem rgba(30,35,48,.28);transition:none}
+body.dragging,body.dragging *{cursor:grabbing!important;user-select:none;-webkit-user-select:none}
+.empty{align-self:center;color:var(--sub);font-size:1.05rem;padding:.2rem .3rem}
+
 /* ── 상태 ── */
 .state{text-align:center;padding:4rem 1.5rem;background:var(--card);box-shadow:var(--shadow);border-radius:var(--r)}
 .state img{height:11rem;width:auto}
@@ -108,6 +137,7 @@ button:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
   .date{font-size:2.1rem}.fox{height:4rem}
   .card{padding:1.5rem 1.3rem 1.4rem}
   .time,.mine .when{min-width:0}
+  .zones{grid-template-columns:1fr}
 }
 @media (prefers-reduced-motion:no-preference){.slot.live .badge:not(.end){animation:pulse 1.8s ease-in-out infinite}}
 @keyframes pulse{50%{opacity:.55}}
@@ -140,6 +170,15 @@ button:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
 const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbyXMkk0wqkinmSP5CSGffLq2bw7LXstFneb02WXfS35QTZdp7f53Ukj_SoRfkuombEk/exec';
 const REFRESH_MS = 60 * 1000;        // 시트 다시 읽는 간격
 const NAME_RESET_MS = 90 * 1000;     // 이름 선택 자동 해제 (다음 친구를 위해)
+
+/* 튼튼: 이름을 끌어서 시간을 고르는 칸
+   - 명단을 바꾸려면 아래 이름만 고치면 돼요.
+   - 시트에 그날 "16:00 ~ 16:30", "16:30 ~ 17:00" 칸이 있거나 튼튼 시간이 적혀 있지 않으면 나타나요. */
+const TUNTEUN_ROSTER = ['김도영', '김윤성', '김재이', '김지윤', '김태웅', '박지상', '성시윤', '송지호', '신유준', '진우주'];
+const TUNTEUN_ZONES = [
+  { label: '16:00~16:30', start: 16 * 60,      end: 16 * 60 + 30 },
+  { label: '16:30~17:00', start: 16 * 60 + 30, end: 17 * 60 },
+];
 
 /* ═══════════ 작은 도구들 ═══════════ */
 const $ = id => document.getElementById(id);
@@ -274,6 +313,15 @@ function parseTimePart(line){
   return slots;
 }
 
+// "간식 먹는 친구, 김재이, 김태웅" 처럼 메모와 이름이 섞인 줄
+function splitMixed(line){
+  if (!/[,，、]/.test(line)) return null;
+  const tokens = line.replace(/\([^)]*\)/g, ' ').split(/[,，、]/).map(t => t.trim()).filter(Boolean);
+  const names = tokens.filter(t => NAME_RE.test(t)), other = tokens.filter(t => !NAME_RE.test(t));
+  if (!names.length || !other.length || other.some(t => t.length > 15)) return null;
+  return { names, note: other.join(', ') };
+}
+
 const norm = s => s.replace(/[\[\]"'“”‘’「」\s]/g, '').toLowerCase();
 
 function parseBody(text, title){
@@ -295,6 +343,15 @@ function parseBody(text, title){
     if (n && open) {
       open.forEach(s => { s.names = n.names.slice(); if (n.note) s.note = [s.note, n.note].filter(Boolean).join(' '); });
       open = null; continue;
+    }
+    if (open) {
+      const mixed = splitMixed(line);
+      if (mixed) {
+        open.forEach(s => { s.names = mixed.names.slice(); s.note = [s.note, mixed.note].filter(Boolean).join(' '); });
+        open = null; continue;
+      }
+      // 시간 바로 아래의 짧은 메모 (예: "간식 안먹는 친구")
+      if (line.length <= 15 && open.every(s => !s.note)) { open.forEach(s => s.note = line); continue; }
     }
     open = null;
     if (n && n.names.length >= 2 && !n.note) { waiting = n; continue; }
@@ -362,7 +419,69 @@ function buildLabs(rows){
 }
 
 /* ═══════════ 화면 그리기 ═══════════ */
-const state = { data: null, labs: [], me: '', open: new Set(), stale: false, error: '' };
+const state = { data: null, labs: [], me: '', sel: '', open: new Set(), stale: false, error: '' };
+// 튼튼 시간 고르기: server = 시트에 저장된 내용, pending = 아직 시트에 안 보낸 내용
+const tState = { date: '', sync: false, server: null, pending: {}, failed: false };
+const ko = (a, b) => a.localeCompare(b, 'ko');
+
+function attachBoards(labs){
+  for (const l of labs) {
+    if (!/튼튼/.test(l.name) || !l.items.length) continue;
+    const it = l.items[0];
+    const zoneOf = s => s.end != null && TUNTEUN_ZONES.find(z => pm(s.start) === z.start && pm(s.end) === z.end);
+    // 토요일처럼 다른 시간에만 하는 날은 칸을 만들지 않아요
+    if (it.slots.length && !it.slots.some(zoneOf)) continue;
+    const init = {}, notes = {};
+    it.slots = it.slots.filter(s => {
+      const z = zoneOf(s);
+      if (!z) return true;
+      s.names.forEach(n => { init[n] = z.label; });
+      if (s.note) notes[z.label] = s.note;
+      return false;
+    });
+    it.board = { init, notes };
+  }
+}
+function localKey(){ return 'tunteun:' + tState.date; }
+function readLocal(){ try { return JSON.parse(store.get(localKey()) || '{}') || {}; } catch (e) { return {}; } }
+function boardMap(board){
+  return Object.assign({}, board.init, tState.sync ? (tState.server || {}) : readLocal(), tState.pending);
+}
+function boardSlots(board){
+  const m = boardMap(board);
+  return TUNTEUN_ZONES.map(z => ({ start: z.start, end: z.end, zone: z.label, note: board.notes[z.label] || '',
+    names: Object.keys(m).filter(n => m[n] === z.label).sort(ko) }));
+}
+function boardPool(board){
+  const m = boardMap(board);
+  return [...new Set([...TUNTEUN_ROSTER, ...Object.keys(m)])].filter(n => !m[n]).sort(ko);
+}
+const allSlots = it => it.board ? it.slots.concat(boardSlots(it.board)) : it.slots;
+
+function statusBadge(st){
+  return st === 'live' ? `<span class="badge">지금</span>` : st === 'done' ? `<span class="badge end">끝</span>` : '';
+}
+function boardHtml(board){
+  const m = boardMap(board), sel = state.sel;
+  const chip = n => `<button type="button" class="chip${n === state.me ? ' me' : ''}${n === sel ? ' sel' : ''}" data-name="${esc(n)}" aria-pressed="${n === sel}">${esc(n)}</button>`;
+  const put = slot => sel && (m[sel] || '') !== slot ? `<button type="button" class="put" data-slot="${slot}">${slot ? '여기에 놓기' : '여기로 빼기'}</button>` : '';
+  const pool = boardPool(board);
+  return `<div class="board">
+    <div class="zone pool" data-slot="">
+      <div class="zone-head"><span class="zone-title">아직 시간을 안 고른 친구</span>
+        <span class="hint">내 이름을 꾹 눌러서 아래 시간 칸으로 옮겨요</span>${put('')}</div>
+      <div class="drop">${pool.map(chip).join('') || '<span class="empty">모두 시간을 골랐어요!</span>'}</div>
+    </div>
+    <div class="zones">` + boardSlots(board).map(z => {
+      const st = slotStatus(z);
+      return `<div class="zone time-zone ${st}" data-slot="${z.zone}">
+        <div class="zone-head"><span class="time">${timeText(z)}</span>${statusBadge(st)}` +
+          (z.note ? `<span class="note">${esc(z.note)}</span>` : '') +
+          `<span class="count">${z.names.length}명</span>${put(z.zone)}</div>
+        <div class="drop">${z.names.map(chip).join('') || '<span class="empty">여기로 옮겨 오세요</span>'}</div>
+      </div>`;
+    }).join('') + `</div></div>`;
+}
 let meTimer = null;
 const DOW = ['일','월','화','수','목','금','토'];
 
@@ -386,7 +505,9 @@ function renderHeader(){
   $('date').innerHTML = `${m}월 ${d}일 ${dow}요일` + (state.data && state.data.week ? `<small>${esc(state.data.week.trim())}</small>` : '');
 }
 
+let drag = null, deferredRender = false, suppressClick = false;
 function render(){
+  if (drag) { deferredRender = true; return; }
   renderHeader();
   const main = $('main');
   const api = store.get('schedule_api') || DEFAULT_API_URL;
@@ -416,7 +537,7 @@ function render(){
   }
 
   const names = new Set();
-  state.labs.forEach(l => l.items.forEach(it => it.slots.forEach(s => s.names.forEach(n => names.add(n)))));
+  state.labs.forEach(l => l.items.forEach(it => allSlots(it).forEach(s => s.names.forEach(n => names.add(n)))));
   if (state.me && !names.has(state.me)) state.me = '';
   const sorted = [...names].sort((a, b) => a.localeCompare(b, 'ko'));
   let html = '';
@@ -429,7 +550,7 @@ function render(){
 
   if (state.me) {
     const mine = [];
-    state.labs.forEach(l => l.items.forEach(it => it.slots.forEach(s => { if (s.names.includes(state.me)) mine.push({ l, it, s }); })));
+    state.labs.forEach(l => l.items.forEach(it => allSlots(it).forEach(s => { if (s.names.includes(state.me)) mine.push({ l, it, s }); })));
     mine.sort((x, y) => pm(x.s.start) - pm(y.s.start));
     html += `<section class="mine"><div class="mine-head"><h2>${esc(state.me)}의 오늘</h2><button type="button" class="close" id="closeMine">닫기</button></div><ol>` +
       mine.map(({ l, it, s }) => `<li><span class="when">${timeText(s)}</span><span class="lab-tag" style="--c:${l.style[1]}">${l.style[0]} ${esc(l.name)}</span><span class="what">${esc(it.title)}</span></li>`).join('') +
@@ -438,8 +559,9 @@ function render(){
 
   html += `<div class="grid">` + state.labs.map((l, li) => {
     const [ico, c, cl, cd] = l.style;
-    const hit = state.me && l.items.some(it => it.slots.some(s => s.names.includes(state.me)));
-    return `<article class="card${hit ? ' hit' : ''}" style="--c:${c};--cl:${cl};--cd:${cd}">
+    const hit = state.me && l.items.some(it => allSlots(it).some(s => s.names.includes(state.me)));
+    const wide = l.items.some(it => it.board);
+    return `<article class="card${hit ? ' hit' : ''}${wide ? ' wide' : ''}" style="--c:${c};--cl:${cl};--cd:${cd}">
       <div class="head"><span class="ico" aria-hidden="true">${ico}</span><h3>${esc(l.name)}</h3></div>
       <div class="body">` + l.items.map((it, ii) => {
         const key = l.name + '|' + ii, isOpen = state.open.has(key);
@@ -455,6 +577,7 @@ function render(){
               (s.names.length ? `<div class="who">` + s.names.map(n => `<span${n === state.me ? ' class="me"' : ''}>${esc(n)}</span>`).join('') + `</div>` : '') +
               `</li>`;
           }).join('') + `</ul>` : '') +
+          (it.board ? boardHtml(it.board) : '') +
           (it.desc ? `<p class="desc${long && !isOpen ? ' clamp' : ''}">${esc(it.desc)}</p>` +
             (long ? `<button type="button" class="more" data-key="${esc(key)}" aria-expanded="${isOpen}">${isOpen ? '접기 ▲' : '더 보기 ▼'}</button>` : '') : '') +
           `</div>`;
@@ -476,15 +599,118 @@ $('main').addEventListener('click', e => {
     return;
   }
   if (e.target.closest('#closeMine')) { state.me = ''; clearTimeout(meTimer); render(); return; }
+  const chip = e.target.closest('.chip');
+  if (chip) {
+    if (suppressClick) { suppressClick = false; return; }
+    const name = chip.dataset.name;
+    state.sel = state.sel === name ? '' : name;
+    render();
+    const again = [...document.querySelectorAll('.chip')].find(b => b.dataset.name === name);
+    if (again) again.focus({ preventScroll: true });
+    return;
+  }
+  const put = e.target.closest('.put');
+  if (put && state.sel) { moveName(state.sel, put.dataset.slot); return; }
+  const zone = e.target.closest('.board .zone');
+  if (zone && state.sel) { moveName(state.sel, zone.dataset.slot); return; }
   const more = e.target.closest('.more');
   if (more) { const k = more.dataset.key; state.open.has(k) ? state.open.delete(k) : state.open.add(k); render(); }
 });
+
+/* ═══════════ 끌어서 옮기기 ═══════════ */
+function zoneAt(x, y){ const el = document.elementFromPoint(x, y); return el && el.closest('.board .zone'); }
+function setOver(z){
+  if (!drag || drag.over === z) return;
+  if (drag.over) drag.over.classList.remove('over');
+  drag.over = z;
+  if (z) z.classList.add('over');
+}
+function autoScroll(){
+  if (!drag || !drag.moved) return;
+  const edge = 80, y = drag.y;
+  const v = y < edge ? -(edge - y) / 3 : y > innerHeight - edge ? (y - (innerHeight - edge)) / 3 : 0;
+  if (v) { scrollBy(0, v); setOver(zoneAt(drag.x, drag.y)); }
+  requestAnimationFrame(autoScroll);
+}
+$('main').addEventListener('pointerdown', e => {
+  suppressClick = false;
+  const chip = e.target.closest('.chip');
+  if (!chip || (e.pointerType === 'mouse' && e.button !== 0)) return;
+  const r = chip.getBoundingClientRect();
+  drag = { chip, name: chip.dataset.name, from: chip.closest('.zone').dataset.slot, id: e.pointerId,
+    x0: e.clientX, y0: e.clientY, x: e.clientX, y: e.clientY, dx: e.clientX - r.left, dy: e.clientY - r.top,
+    w: r.width, h: r.height, moved: false, ghost: null, over: null };
+  try { chip.setPointerCapture(e.pointerId); } catch (err) {}
+});
+$('main').addEventListener('pointermove', e => {
+  if (!drag || e.pointerId !== drag.id) return;
+  drag.x = e.clientX; drag.y = e.clientY;
+  if (!drag.moved) {
+    if (Math.hypot(e.clientX - drag.x0, e.clientY - drag.y0) < 6) return;
+    drag.moved = true;
+    const g = drag.chip.cloneNode(true), cs = getComputedStyle(drag.chip);
+    g.classList.add('ghost'); g.classList.remove('sel');
+    g.removeAttribute('data-name'); g.setAttribute('aria-hidden', 'true');
+    g.style.width = drag.w + 'px'; g.style.height = drag.h + 'px';
+    ['--c', '--cl', '--cd'].forEach(k => g.style.setProperty(k, cs.getPropertyValue(k)));
+    document.body.appendChild(g);
+    drag.ghost = g;
+    drag.chip.classList.add('lifting');
+    document.body.classList.add('dragging');
+    requestAnimationFrame(autoScroll);
+  }
+  e.preventDefault();
+  drag.ghost.style.transform = `translate(${e.clientX - drag.dx}px, ${e.clientY - drag.dy}px) rotate(-3deg) scale(1.08)`;
+  setOver(zoneAt(e.clientX, e.clientY));
+});
+function endDrag(e, cancel){
+  if (!drag || e.pointerId !== drag.id) return;
+  const d = drag;
+  if (d.over) d.over.classList.remove('over');
+  drag = null;
+  if (!d.moved) { if (deferredRender) { deferredRender = false; render(); } return; }
+  suppressClick = true;
+  d.ghost.remove();
+  document.body.classList.remove('dragging');
+  d.chip.classList.remove('lifting');
+  deferredRender = false;
+  const z = cancel ? null : zoneAt(e.clientX, e.clientY);
+  if (z && z.dataset.slot !== d.from) moveName(d.name, z.dataset.slot);
+  else render();
+}
+$('main').addEventListener('pointerup', e => endDrag(e, false));
+$('main').addEventListener('pointercancel', e => endDrag(e, true));
+
+function moveName(name, slot){
+  state.sel = '';
+  if (!state.data) return;
+  const loc = readLocal(); loc[name] = slot; store.set(localKey(), JSON.stringify(loc));
+  if (tState.sync) { tState.pending[name] = slot; sendMove(name, slot); }
+  render(); renderFoot();
+}
+async function sendMove(name, slot){
+  const date = tState.date;
+  try {
+    const r = await apiGet({ action: 'tunteun', date, name, slot });
+    if (r.status !== 'ok') throw new Error(r.message || 'error');
+    if (tState.date !== date) return;
+    if (r.tunteun) tState.server = r.tunteun;
+    if (tState.pending[name] === slot) delete tState.pending[name];
+    tState.failed = false;
+  } catch (err) {
+    tState.failed = true;   // 다음에 시트를 다시 읽을 때 또 보내요
+  }
+  render(); renderFoot();
+}
 
 function renderFoot(){
   const d = state.data;
   let t = '';
   if (d && d.updated) t = `시트에서 ${esc(d.updated.slice(11, 16))}에 가져왔어요 · 1분마다 새로 확인해요`;
   if (state.stale) t += ` <span class="warn">· 지금은 연결이 안 돼서 마지막 내용을 보여 주고 있어요</span>`;
+  const hasBoard = state.labs.some(l => l.items.some(it => it.board));
+  if (hasBoard && !tState.sync) t += ` · 튼튼 시간은 이 기기에만 저장돼요`;
+  if (hasBoard && tState.sync && Object.keys(tState.pending).length && tState.failed) t += ` <span class="warn">· 튼튼 시간을 아직 시트에 못 보냈어요</span>`;
   $('foot').innerHTML = t;
 }
 
@@ -497,6 +723,30 @@ function tick(){
 function accept(data){
   state.data = data;
   state.labs = data.found === false ? [] : buildLabs(data.rows || []);
+  attachBoards(state.labs);
+  if (tState.date !== data.date) { tState.date = data.date; tState.pending = {}; tState.failed = false; state.sel = ''; }
+  tState.sync = 'tunteun' in data;      // 시트에 저장하는 새 버전의 schedule.gs 인지
+  tState.server = data.tunteun || null;
+}
+
+async function apiGet(query){
+  const api = store.get('schedule_api') || DEFAULT_API_URL;
+  const qs = new URLSearchParams(query);
+  qs.set('t', Date.now());
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 25000);
+  try {
+    const res = await fetch(api + (api.includes('?') ? '&' : '?') + qs, { signal: ctrl.signal, cache: 'no-store' });
+    const text = await res.text();
+    try { return JSON.parse(text); }
+    catch (e) {
+      throw new Error(/accounts\.google\.com|로그인|Sign in/i.test(text)
+        ? '웹 앱이 로그인을 요구해요. 배포 설정의 액세스 권한을 "모든 사용자"로 바꿔 주세요.'
+        : '웹 앱 주소가 시간표 데이터를 돌려주지 않아요. …/exec 로 끝나는 웹 앱 주소인지, schedule.gs 가 배포됐는지 확인해 주세요.');
+    }
+  } finally {
+    clearTimeout(timer);
+  }
 }
 let loading = false;
 async function load(){
@@ -506,23 +756,12 @@ async function load(){
   loading = true;
   if (!state.data) render();
   try {
-    const url = api + (api.includes('?') ? '&' : '?') + (dateOverride ? 'date=' + dateOverride + '&' : '') + 't=' + Date.now();
-    const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 25000);
-    const res = await fetch(url, { signal: ctrl.signal, cache: 'no-store' });
-    clearTimeout(timer);
-    const text = await res.text();
-    let data;
-    try { data = JSON.parse(text); }
-    catch (e) {
-      throw new Error(/accounts\.google\.com|로그인|Sign in/i.test(text)
-        ? '웹 앱이 로그인을 요구해요. 배포 설정의 액세스 권한을 "모든 사용자"로 바꿔 주세요.'
-        : '웹 앱 주소가 시간표 데이터를 돌려주지 않아요. …/exec 로 끝나는 웹 앱 주소인지, schedule.gs 가 배포됐는지 확인해 주세요.');
-    }
+    const data = await apiGet(dateOverride ? { date: dateOverride } : {});
     if (data.status !== 'ok') throw new Error(data.message || '시트를 읽는 중 오류가 났어요.');
     if (!('rows' in data)) throw new Error('다른 Apps Script 의 주소 같아요. schedule.gs 를 배포한 주소인지 확인해 주세요.');
     accept(data);
     state.stale = false; state.error = '';
+    if (tState.sync) for (const [n, sl] of Object.entries(tState.pending)) sendMove(n, sl);
     store.set('schedule_last', JSON.stringify(data));
   } catch (err) {
     state.error = String(err && err.message || err);
