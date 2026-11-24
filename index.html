@@ -87,6 +87,27 @@ button:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
 .desc.clamp{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .more{margin-top:.5rem;border:0;background:none;color:var(--cd);font-weight:700;font-size:1.05rem;padding:.4rem 0;min-height:2.6rem}
 
+/* ── 활동 1·2 / Part 1·2 ── */
+.acts{margin-top:1.3rem;display:grid;grid-template-columns:repeat(var(--cols),minmax(0,1fr));gap:.9rem 1.4rem}
+.act{display:contents}
+.act > *{grid-column:var(--col);grid-row:var(--row)}
+.act-head{display:flex;align-items:center;gap:.7rem;flex-wrap:wrap;padding-bottom:.2rem}
+.act-no{background:var(--c);color:#fff;font-weight:800;font-size:1.05rem;border-radius:99px;padding:.25rem .85rem;flex:none}
+.act-head h4{font-size:1.5rem;font-weight:800;letter-spacing:-.03em;line-height:1.3}
+.part{background:var(--cl);border-radius:1.25rem;padding:1.15rem 1.3rem 1.25rem}
+.part-head{display:flex;align-items:baseline;gap:.4rem .7rem;flex-wrap:wrap;margin-bottom:.6rem}
+.part-no{flex:none;font-size:.95rem;font-weight:800;color:var(--cd);background:#fff;border-radius:.6rem;padding:.15rem .6rem;align-self:center}
+.part-head b{font-size:1.3rem;font-weight:800;letter-spacing:-.02em;line-height:1.35}
+.cond{font-size:.95rem;font-weight:600;color:var(--sub);background:#fff;border-radius:99px;padding:.1rem .65rem;align-self:center}
+.q{font-size:1.15rem;font-weight:600;color:var(--cd);margin-bottom:.6rem;line-height:1.5}
+.q::before{content:"💭 "}
+.steps{list-style:none;display:grid;gap:.45rem}
+.steps li{position:relative;padding-left:1.2rem;font-size:1.15rem;line-height:1.6;color:var(--ink)}
+.steps li::before{content:"";position:absolute;left:.15rem;top:.68em;width:.42rem;height:.42rem;border-radius:50%;background:var(--c);opacity:.7}
+.ref{margin-top:.8rem;font-size:1rem;color:var(--sub)}
+.ref span{font-weight:700;color:var(--cd);margin-right:.2rem}
+.desc.after{margin-top:1.1rem}
+
 /* ── 튼튼: 끌어서 시간 고르기 ── */
 .card.wide{grid-column:1/-1}
 .board{margin-top:1.2rem;display:grid;gap:1rem}
@@ -138,6 +159,10 @@ body.dragging,body.dragging *{cursor:grabbing!important;user-select:none;-webkit
   .card{padding:1.5rem 1.3rem 1.4rem}
   .time,.mine .when{min-width:0}
   .zones{grid-template-columns:1fr}
+  .acts{display:block}
+  .act{display:block}
+  .act > *{margin-top:.8rem}
+  .act + .act{margin-top:1.8rem}
 }
 @media (prefers-reduced-motion:no-preference){.slot.live .badge:not(.end){animation:pulse 1.8s ease-in-out infinite}}
 @keyframes pulse{50%{opacity:.55}}
@@ -367,6 +392,54 @@ function parseBody(text, title){
   return { slots, desc: desc.join('\n') };
 }
 
+/* "활동 1 : 제목 / Part 1｜제목 / 질문? / 설명 / 레슨플랜 참고 : 「…」" 구조 읽기 */
+const SEP = '\\s*[:：｜|]\\s*';
+const ACT_RE = new RegExp('^활동\\s*(\\d+)(?:' + SEP + '(.*))?$');
+const PART_RE = new RegExp('^(Part\\s*\\d+|파트\\s*\\d+|새로\\s*시작|이어\\s*하기)' + SEP + '(.*)$', 'i');
+const REF_RE = new RegExp('^레슨\\s*플랜\\s*참고(?:' + SEP + '|\\s+)(.*)$');
+const COND_RE = /^(.{1,20}?(?:을|를)\s*마쳤다면)\s*/;
+const sentences = t => t.split(/(?<=[.!?])\s+/).map(x => x.trim()).filter(Boolean);
+
+function parseActivities(desc){
+  const lines = String(desc || '').split('\n').map(l => l.trim());
+  const acts = [], before = [], after = [];
+  let act = null, part = null, blank = false;
+  const body = (target, text) => {
+    if (!target.question && !target.steps.length && /\?$/.test(text)) { target.question = text; return; }
+    target.steps.push(...sentences(text));
+  };
+  for (const line of lines) {
+    if (!line) { blank = true; continue; }
+    let m;
+    if ((m = ACT_RE.exec(line))) {
+      act = { no: m[1], title: (m[2] || '').trim(), parts: [], intro: { question: '', steps: [] } };
+      acts.push(act); part = null; blank = false; continue;
+    }
+    if (act && blank && !PART_RE.test(line) && !REF_RE.test(line)) { act = null; part = null; }
+    blank = false;
+    if (!act) { (acts.length ? after : before).push(line); continue; }
+    if ((m = PART_RE.exec(line))) {
+      let label = m[1].replace(/\s+/g, ' ').replace(/^part/i, 'Part'), rest = m[2].trim(), cond = '';
+      const c = COND_RE.exec(rest);
+      if (c) { cond = c[1]; rest = rest.slice(c[0].length); }
+      part = { label, title: '', cond, question: '', steps: [], ref: '' };
+      // "Part 1｜짧은 제목" 이면 제목, "새로 시작 : 긴 설명" 이면 설명
+      if (rest && rest.length <= 30 && !/[.!?]$/.test(rest)) part.title = rest; else if (rest) body(part, rest);
+      act.parts.push(part); continue;
+    }
+    if ((m = REF_RE.exec(line))) {
+      const ref = m[1].trim();
+      if (part) part.ref = [part.ref, ref].filter(Boolean).join(' ');
+      else act.intro.steps.push('레슨플랜 참고 ' + ref);
+      continue;
+    }
+    body(part || act.intro, line);
+  }
+  const partsCount = acts.reduce((n, a) => n + a.parts.length, 0);
+  if (!acts.length || (acts.length < 2 && partsCount < 2)) return null;
+  return { acts, before: before.join('\n'), after: after.join('\n') };
+}
+
 function parseLabel(a){
   const lines = a.replace(/\r/g, '').split('\n').map(s => s.trim()).filter(Boolean);
   let name = lines.shift() || '활동';
@@ -411,7 +484,7 @@ function buildLabs(rows){
       const { title, tail } = parseTitle(it.t);
       const { slots, desc } = parseBody([tail, it.b].filter(s => s.trim()).join('\n'), title);
       if (!title && !slots.length && !desc) continue;
-      items.push({ title, slots, desc });
+      items.push({ title, slots, desc, acts: parseActivities(desc) });
     }
     if (items.length) labs.push({ name, theme, items, style: labStyle(name) });
   }
@@ -457,6 +530,27 @@ function boardPool(board){
   return [...new Set([...TUNTEUN_ROSTER, ...Object.keys(m)])].filter(n => !m[n]).sort(ko);
 }
 const allSlots = it => it.board ? it.slots.concat(boardSlots(it.board)) : it.slots;
+
+function actsHtml(a){
+  const block = (b, row) => (b.question ? `<p class="q">${esc(b.question)}</p>` : '') +
+    (b.steps.length ? `<ul class="steps">` + b.steps.map(t => `<li>${esc(t)}</li>`).join('') + `</ul>` : '');
+  const maxParts = Math.max(...a.acts.map(x => x.parts.length + (x.intro.question || x.intro.steps.length ? 1 : 0)));
+  return (a.before ? `<p class="desc">${esc(a.before)}</p>` : '') +
+    `<div class="acts" style="--cols:${Math.min(a.acts.length, 3)}">` + a.acts.map((act, ci) => {
+      let row = 1;
+      const cell = (cls, html) => `<div class="${cls}" style="--col:${ci + 1};--row:${row++}">${html}</div>`;
+      return `<section class="act">` +
+        cell('act-head', `<span class="act-no">활동 ${esc(act.no)}</span>${act.title ? `<h4>${esc(act.title)}</h4>` : ''}`) +
+        (act.intro.question || act.intro.steps.length ? cell('part intro', block(act.intro)) : '') +
+        act.parts.map(pt => cell('part',
+          `<div class="part-head"><span class="part-no">${esc(pt.label)}</span>${pt.title ? `<b>${esc(pt.title)}</b>` : ''}` +
+          (pt.cond ? `<span class="cond">${esc(pt.cond)}</span>` : '') + `</div>` +
+          block(pt) +
+          (pt.ref ? `<p class="ref"><span>레슨플랜 참고</span> ${esc(pt.ref)}</p>` : ''))).join('') +
+        `</section>`;
+    }).join('') + `</div>` +
+    (a.after ? `<p class="desc after">${esc(a.after)}</p>` : '');
+}
 
 function statusBadge(st){
   return st === 'live' ? `<span class="badge">지금</span>` : st === 'done' ? `<span class="badge end">끝</span>` : '';
@@ -560,7 +654,7 @@ function render(){
   html += `<div class="grid">` + state.labs.map((l, li) => {
     const [ico, c, cl, cd] = l.style;
     const hit = state.me && l.items.some(it => allSlots(it).some(s => s.names.includes(state.me)));
-    const wide = l.items.some(it => it.board);
+    const wide = l.items.some(it => it.board || it.acts);
     return `<article class="card${hit ? ' hit' : ''}${wide ? ' wide' : ''}" style="--c:${c};--cl:${cl};--cd:${cd}">
       <div class="head"><span class="ico" aria-hidden="true">${ico}</span><h3>${esc(l.name)}</h3></div>
       <div class="body">` + l.items.map((it, ii) => {
@@ -578,7 +672,7 @@ function render(){
               `</li>`;
           }).join('') + `</ul>` : '') +
           (it.board ? boardHtml(it.board) : '') +
-          (it.desc ? `<p class="desc${long && !isOpen ? ' clamp' : ''}">${esc(it.desc)}</p>` +
+          (it.acts ? actsHtml(it.acts) : it.desc ? `<p class="desc${long && !isOpen ? ' clamp' : ''}">${esc(it.desc)}</p>` +
             (long ? `<button type="button" class="more" data-key="${esc(key)}" aria-expanded="${isOpen}">${isOpen ? '접기 ▲' : '더 보기 ▼'}</button>` : '') : '') +
           `</div>`;
       }).join('') + `</div></article>`;
