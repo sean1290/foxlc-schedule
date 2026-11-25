@@ -87,6 +87,13 @@ button:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
 .desc.clamp{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .more{margin-top:.5rem;border:0;background:none;color:var(--cd);font-weight:700;font-size:1.05rem;padding:.4rem 0;min-height:2.6rem}
 
+/* ── 플레이팩토 보드게임 사진 ── */
+.games{display:flex;gap:.8rem;flex-wrap:wrap;margin-bottom:1rem}
+.game{flex:1 1 13rem;max-width:22rem;margin:0}
+.games.multi .game{max-width:16rem}
+.game img{display:block;width:100%;aspect-ratio:1;object-fit:cover;border-radius:1.15rem;background:var(--cl);box-shadow:0 .3rem 1rem rgba(30,35,48,.12)}
+.game figcaption{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
 /* ── 활동 1·2 / Part 1·2 ── */
 .acts{margin-top:1.3rem;display:grid;grid-template-columns:repeat(var(--cols),minmax(0,1fr));gap:.9rem 1.4rem}
 .act{display:contents}
@@ -200,6 +207,46 @@ const NAME_RESET_MS = 90 * 1000;     // 이름 선택 자동 해제 (다음 친�
    - 명단을 바꾸려면 아래 이름만 고치면 돼요.
    - 시트에 그날 "16:00 ~ 16:30", "16:30 ~ 17:00" 칸이 있거나 튼튼 시간이 적혀 있지 않으면 나타나요. */
 const TUNTEUN_ROSTER = ['김도영', '김윤성', '김재이', '김지윤', '김태웅', '박지상', '성시윤', '송지호', '신유준', '진우주'];
+/* 플레이팩토 보드게임 사진
+   플레이팩토 보드게임 목록(https://www.playfacto.co.kr/mall/board_game_list.do)의 단품 32종.
+   시트의 게임 이름(띄어쓰기·영어 이름·자주 쓰는 다른 이름 포함)과 맞으면 그 게임 사진을 보여 줘요.
+   사진은 플레이팩토 홈페이지에서 바로 불러와요. */
+const PLAYFACTO_SHOP = 'https://www.playfacto.co.kr/mall/products.do?products_code=';
+const PLAYFACTO_GAMES = [
+  { names: ["바이 초이스", "By Choice"], code: 'P000002322', img: 'https://pd.playfacto.co.kr/Upload_Data/Products/34%5B3%5D.jpg' },
+  { names: ["올 디렉션스", "All Directions"], code: 'P000002323', img: 'https://pd.playfacto.co.kr/Upload_Data/Products/12%5B9%5D.jpg' },
+  { names: ["핑거 체스", "Finger Chess"], code: 'P000002324', img: 'https://pd.playfacto.co.kr/Upload_Data/Products/23%5B6%5D.jpg' },
+  { names: ["원 로드", "One Road"], code: 'P000002213', img: 'https://pd.playfacto.co.kr/Upload_Data/Products/1%5B9%5D.jpg' },
+  { names: ["캔디 박스", "Candy Box"], code: 'P000002219', img: 'https://pd.playfacto.co.kr/Upload_Data/Products/2%5B5%5D.jpg' },
+  { names: ["커버 잇", "Cover It"], code: 'P000002218', img: 'https://pd.playfacto.co.kr/Upload_Data/Products/3%5B3%5D.jpg' },
+  { names: ["컬러 도트", "Color Dots"], code: 'P000002215', img: 'https://pd.playfacto.co.kr/Upload_Data/Products/4%5B2%5D.jpg' },
+  { names: ["컬러 블록스", "Color Blocks", "컬러 블럭스"], code: 'P000002217', img: 'https://pd.playfacto.co.kr/Upload_Data/Products/5%5B3%5D.jpg' },
+  { names: ["턴 빙고", "Turn Bingo"], code: 'P000002216', img: 'https://pd.playfacto.co.kr/Upload_Data/Products/7%5B1%5D.jpg' },
+  { names: ["큐브타워", "Cube Tower"], code: 'P000002214', img: 'https://pd.playfacto.co.kr/Upload_Data/Products/1%5B10%5D.jpg' },
+  { names: ["게스왓?!", "Guess What?!", "게스 왓", "게스왔"], code: 'P000002160', img: 'https://pd.playfacto.co.kr/Upload_Data/Products/23%5B5%5D.jpg' },
+  { names: ["1020", "Ten-Twenty", "텐트웬티"], code: 'P000001945', img: 'https://pd.playfacto.co.kr/Upload_Data/Products/19_tentwenty%5B1%5D.jpg' },
+  { names: ["라인업", "라인 업", "Line Up"], code: 'P000001947', img: 'https://pd.playfacto.co.kr/Upload_Data/Products/20_line_up%5B1%5D.jpg' },
+  { names: ["카운팅어택", "카운팅 어택", "Counting Attack"], code: 'P000001943', img: 'https://pd.playfacto.co.kr/Upload_Data/Products/21_counting_attack%5B1%5D.jpg' },
+  { names: ["픽셀", "Pixel"], code: 'P000001944', img: 'https://pd.playfacto.co.kr/Upload_Data/Products/23_pixel%5B1%5D.jpg' },
+  { names: ["숫자 퍼즐", "Number Puzzles"], code: 'P000001764', img: 'https://pd.playfacto.co.kr/Upload_Data/Products/number.jpg' },
+  { names: ["쉐입스", "모양 퍼즐", "Shapes", "쉐이프"], code: 'P000001765', img: 'https://pd.playfacto.co.kr/Upload_Data/Products/shapes.jpg' },
+  { names: ["롤링스틱스", "롤링 스틱스", "Rolling Sticks"], code: 'P000001766', img: 'https://pd.playfacto.co.kr/Upload_Data/Products/rollingsticks.jpg' },
+  { names: ["파이브 다이스", "Five Dice"], code: 'P000001679', img: 'https://pd.playfacto.co.kr/Upload_Data/Products/fivedice.jpg' },
+  { names: ["탱그램 배틀", "Tangram Battle"], code: 'P000001105', img: 'https://pd.playfacto.co.kr/Upload_Data/Products/11_tangram_battle.jpg' },
+  { names: ["빙고셋", "빙고 셋", "Bingo Set"], code: 'P000001106', img: 'https://pd.playfacto.co.kr/Upload_Data/Products/12_bingo_set.jpg' },
+  { names: ["미니마이즈", "Minimize"], code: 'P000001107', img: 'https://pd.playfacto.co.kr/Upload_Data/Products/14_minimize.jpg' },
+  { names: ["큐브스", "Cubes"], code: 'P000000900', img: 'https://pd.playfacto.co.kr/Upload_Data/Products/08Cubes.jpg' },
+  { names: ["더 써클", "The Circle"], code: 'P000000901', img: 'https://pd.playfacto.co.kr/Upload_Data/Products/09The_Circle.jpg' },
+  { names: ["패션퍼피", "패션 퍼피", "Fashion Puppy"], code: 'P000000902', img: 'https://pd.playfacto.co.kr/Upload_Data/Products/10Fashion_Puppy.jpg' },
+  { names: ["메이크 넘버스", "Make Numbers"], code: 'P000000786', img: 'https://pd.playfacto.co.kr/Upload_Data/Products/01MakeNumbers.jpg' },
+  { names: ["타겟 넘버", "타깃 넘버", "Target Number"], code: 'P000000787', img: 'https://pd.playfacto.co.kr/Upload_Data/Products/02Target_Number.jpg' },
+  { names: ["스피드 펜토미노", "Speed Pentomino", "스피드 팬토미노"], code: 'P000000788', img: 'https://pd.playfacto.co.kr/Upload_Data/Products/03Speed_Pentomino.jpg' },
+  { names: ["트루 폴스", "True False", "트루 앤 폴스"], code: 'P000000789', img: 'https://pd.playfacto.co.kr/Upload_Data/Products/04True_False.jpg' },
+  { names: ["위닝타워", "위닝 타워", "Winning Tower"], code: 'P000000790', img: 'https://pd.playfacto.co.kr/Upload_Data/Products/06Winning_Tower.jpg' },
+  { names: ["식스 스도쿠", "Six-Sudoku"], code: 'P000000791', img: 'https://pd.playfacto.co.kr/Upload_Data/Products/05Six_Sudoku.jpg' },
+  { names: ["미니바둑", "미니 바둑", "Mini Baduk"], code: 'P000000792', img: 'https://pd.playfacto.co.kr/Upload_Data/Products/07Mini_Baduk.jpg' },
+];
+
 const TUNTEUN_ZONES = [
   { label: '16:00~16:30', start: 16 * 60,      end: 16 * 60 + 30 },
   { label: '16:30~17:00', start: 16 * 60 + 30, end: 17 * 60 },
@@ -529,6 +576,32 @@ function boardPool(board){
   const m = boardMap(board);
   return [...new Set([...TUNTEUN_ROSTER, ...Object.keys(m)])].filter(n => !m[n]).sort(ko);
 }
+// 시트 제목(예: "빙고셋", "원 로드 / 라인 업", "쉐이프(모양퍼즐)")에서 플레이팩토 게임 찾기
+const gameKey = t => String(t).toLowerCase().replace(/[^0-9a-z가-힣]/g, '');
+function findGames(title){
+  const found = [];
+  for (const part of String(title || '').split(/\s*[\/,\n&+]\s*|\s+그리고\s+/)) {
+    const m = /^(.*?)\((.*)\)\s*$/.exec(part.trim());
+    const keys = (m ? [part, m[1], m[2]] : [part]).map(gameKey).filter(k => k.length >= 2);
+    let hit = null;
+    for (const k of keys) {
+      hit = PLAYFACTO_GAMES.find(g => g.names.some(n => gameKey(n) === k));
+      if (hit) break;
+    }
+    if (!hit) for (const k of keys.filter(k => k.length >= 3)) {
+      hit = PLAYFACTO_GAMES.find(g => g.names.some(n => { const gk = gameKey(n); return gk.length >= 3 && (gk.startsWith(k) || k.startsWith(gk)); }));
+      if (hit) break;
+    }
+    if (hit && !found.includes(hit)) found.push(hit);
+  }
+  return found;
+}
+function gamesHtml(games){
+  return `<div class="games${games.length > 1 ? ' multi' : ''}">` + games.map(g =>
+    `<figure class="game"><img src="${g.img}" alt="${esc(g.names[0])} 보드게임 사진" loading="lazy" decoding="async"
+       onerror="this.closest('.game').remove()"><figcaption>${esc(g.names[0])}</figcaption></figure>`).join('') + `</div>`;
+}
+
 const allSlots = it => it.board ? it.slots.concat(boardSlots(it.board)) : it.slots;
 
 function actsHtml(a){
@@ -660,7 +733,9 @@ function render(){
       <div class="body">` + l.items.map((it, ii) => {
         const key = l.name + '|' + ii, isOpen = state.open.has(key);
         const long = it.desc.length > 90 || it.desc.split('\n').length > 3;
-        return `<div class="item">` +
+        const games = /플레이/.test(l.name) ? findGames(it.title) : [];
+        return `<div class="item${games.length ? ' has-games' : ''}">` +
+          (games.length ? gamesHtml(games) : '') +
           (it.title ? `<div class="title">${esc(it.title)}</div>` : '') +
           (ii === 0 && l.theme ? `<div class="theme">${esc(l.theme)}</div>` : '') +
           (it.slots.length ? `<ul class="slots">` + it.slots.map(s => {
